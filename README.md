@@ -6,7 +6,10 @@
 [![Tests](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen.svg)]()
 [![Non-LLM](https://img.shields.io/badge/AI-100%25%20Non--LLM-success.svg)]()
 [![Vercel Ready](https://img.shields.io/badge/Vercel-Serverless%20Ready-black.svg)]()
+<<<<<<< HEAD
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)]()
+=======
+>>>>>>> origin/main
 
 A complete, production-ready, self-hosted prototype for **ingesting bank statement PDFs**, extracting account holder details and ledger transactions (native text and scanned OCR), reconciling balances, classifying expenses via a **pure Non-LLM hybrid engine**, and providing an interactive server-rendered web UI for human-in-the-loop review and multi-format export.
 
@@ -119,6 +122,7 @@ Navigate to `http://localhost:8000` in your web browser.
 
 ---
 
+<<<<<<< HEAD
 ## 🐳 Docker Deployment
 
 The repository includes a production-ready `Dockerfile` with Debian base, Python 3.12, and `tesseract-ocr` pre-configured:
@@ -135,6 +139,8 @@ Access the application at `http://localhost:8000`.
 
 ---
 
+=======
+>>>>>>> origin/main
 ## ☁️ Vercel Serverless Deployment
 
 The project is pre-configured for Vercel Serverless deployment via `vercel.json` and `api/index.py`:
@@ -228,6 +234,7 @@ make docker-run    # Run Docker container image
   - **Hybrid Coverage**: Stage A Rules: 82.7%, Stage B ML: 16.1%, Needs Review: 1.1%
   - *Report*: Generated in `reports/model_evaluation_holdout.md`.
 
+<<<<<<< HEAD
 ### 2. PDF Extraction Dataset Benchmark (All 21 Documents)
 
 The full test dataset was evaluated via `scripts/evaluate_dataset.py --ocr-engine rapid` (`reports/benchmark_rapid_20261104_161405.md`):
@@ -239,6 +246,9 @@ The full test dataset was evaluated via `scripts/evaluate_dataset.py --ocr-engin
 | **mixed_and_multi** | 3 | 7,966 | 7,924 | 7,890 | **99.0%** | 40.56s |
 | **edge_cases** | 5 | 197 | 197 | 196 | **99.5%** | 0.89s |
 | **other_document_types** | 2 | 51 | 0 | 0 | **Rejected** | 0.01s |
+=======
+
+>>>>>>> origin/main
 
 #### Key Document Benchmark Highlights:
 - **`01_text_bordered_debit_credit_carry_forward.pdf`**: **103 / 103 (100.0%)** exact match, Grade A, 100% balance reconciliation.
