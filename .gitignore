@@ -1,1 +1,33 @@
-.vercel
+# Environments & Virtualenv
+.venv/
+env/
+venv/
+ENV/
+.env
+
+# Vercel
+.vercel/
+
+# Heavy Test Datasets & PDFs
+samples/
+bank_statement_test_dataset/
+TESTING DATA/
+tests/
+training/
+reports/
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+htmlcov/
+.coverage
+
+# Temporary & Debug
+debug_*.py
+test_*.py
+benchmark_*.py
+scratch/
+*.log

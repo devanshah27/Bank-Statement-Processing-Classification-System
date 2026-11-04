@@ -1,8 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "build": {
+    "env": {
+      "VERCEL_SUPPORT_LARGE_FUNCTIONS": "1"
+    }
+  },
   "functions": {
     "api/index.py": {
-      "maxDuration": 300
+      "maxDuration": 300,
+      "excludeFiles": "{samples/**,TESTING DATA/**,bank_statement_test_dataset/**,tests/**,training/**,reports/**,docs/**,*.md,*.txt}"
     }
   },
   "rewrites": [
@@ -12,7 +18,7 @@
   "env": {
     "OCR_ENGINE": "rapid",
     "DEPLOY_TARGET": "vercel",
-    "LOG_LEVEL": "INFO"
+    "LOG_LEVEL": "INFO",
+    "VERCEL_SUPPORT_LARGE_FUNCTIONS": "1"
   }
 }
-
