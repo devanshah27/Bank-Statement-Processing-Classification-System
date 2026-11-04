@@ -33,16 +33,19 @@ templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Application lifespan context: preloads registries, rules, and ML weights."""
-    logger.info("Initializing Bank Statement Processing System...")
-    # Pre-warm bank registry
-    registry = BankRegistry()
-    registry.load_all()
-    logger.info("Bank profiles loaded: %s", ", ".join(registry.list_banks()))
+    try:
+        logger.info("Initializing Bank Statement Processing System...")
+        # Pre-warm bank registry
+        registry = BankRegistry()
+        registry.load_all()
+        logger.info("Bank profiles loaded: %s", ", ".join(registry.list_banks()))
 
-    # Pre-warm classification engine
-    rules = RulesEngine()
-    model = NumpyClassifier()
-    logger.info("Classification engines initialized (Rules: %d, ML: %s)", len(rules.rules), "Loaded" if model.is_loaded else "Untrained")
+        # Pre-warm classification engine
+        rules = RulesEngine()
+        model = NumpyClassifier()
+        logger.info("Classification engines initialized (Rules: %d, ML: %s)", len(rules.rules), "Loaded" if model.is_loaded else "Untrained")
+    except Exception as e:
+        logger.warning("Startup pre-warming warning (non-fatal): %s", e)
 
     yield
     logger.info("Shutting down Bank Statement Processing System...")
@@ -59,9 +62,22 @@ def create_app() -> FastAPI:
         redoc_url="/redoc",
     )
 
-    # Static assets
-    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
-    app.mount("/static", StaticFiles(directory=str(PUBLIC_DIR)), name="static")
+    # Middleware to normalize Vercel rewritten paths
+    @app.middleware("http")
+    async def fix_vercel_path(request: Request, call_next):
+        path = request.scope.get("path", "")
+        if path.startswith("/api/index.py"):
+            new_path = path[len("/api/index.py"):] or "/"
+            request.scope["path"] = new_path
+        return await call_next(request)
+
+    # Static assets (gracefully handle read-only filesystems in serverless)
+    try:
+        PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
+    except OSError:
+        pass
+    if PUBLIC_DIR.is_dir():
+        app.mount("/static", StaticFiles(directory=str(PUBLIC_DIR)), name="static")
 
     # Include routers
     app.include_router(pages.router)
