@@ -224,7 +224,41 @@ make docker-run    # Run Docker container image
 
 ---
 
+## 📌 System Assumptions, Limitations & Future Improvements
+
+### 1. Assumptions Made
+- **Ledger Mathematical Continuity**: Assumes financial statements adhere to standard double-entry or running balance arithmetic:
+  $$\text{Opening Balance} + \sum \text{Credits} - \sum \text{Debits} = \text{Closing Balance}$$
+  with transaction-level balance tracking ($B_t = B_{t-1} \pm \Delta_t$).
+- **Tabular Structure**: Statements contain identifiable tabular structures with header rows denoting transaction date, narration/description, amount (single column with Dr/Cr suffixes or separate Debit/Credit columns), and balance.
+- **Language & Typography**: Narration and descriptions are in English / Latin script, using standard Indian (`DD/MM/YYYY`) or ISO date conventions and comma-separated Indian (`1,00,000.00`) or Western (`100,000.00`) number formatting.
+- **Supported Institutions**: Core profiles calibrated for major Indian commercial banks (SBI, HDFC, ICICI, Axis, Kotak, PNB, BoB, Canara, IDFC, Yes Bank), with fallback to layout-agnostic heuristic parsers for unlisted banks.
+
+---
+
+### 2. Current Limitations
+
+> [!NOTE]
+> **Processing Latency & CPU Time**:
+> - **Native Text PDFs**: Process almost instantaneously (**~1–3 seconds** for typical 5–20 page statements).
+> - **Scanned / Image PDFs**: Require intensive image preprocessing (OpenCV deskewing, binarization, adaptive thresholding) and deep-learning character recognition via ONNX RapidOCR models running entirely on CPU. On serverless environments (such as Vercel's single-core CPU execution), scanned pages take **~15–35 seconds per page**.
+> - **Multi-Page Scanned Documents**: Multi-page scanned statements take a noticeable amount of time due to CPU-bound ONNX inference without hardware GPU acceleration.
+
+- **Non-Standard & Handwritten Documents**: Handwritten passbook entries, carbon-copy prints with severe bleed-through, or very low-resolution scans (< 100 DPI) can result in degraded OCR confidence.
+- **Credit Cards & Non-Bank Statements**: Documents lacking a running balance ledger (e.g., credit card statements with only billing cycles or investment trade books) are rejected by design under the `NOT_A_BANK_STATEMENT` safety gate.
+- **Serverless Execution Limits**: Ephemeral serverless platforms impose hard execution ceilings (e.g., 300s function timeout and 4.5 MB HTTP payload cap). Bulk 100+ page scanned statements are better suited for containerized background worker queues.
+
+---
+
+### 3. Future Improvements
+- **Asynchronous Task Queue & Streaming Progress**: Decouple document parsing from synchronous HTTP requests using Redis / Celery / Vercel Queues or Workflow, streaming real-time per-page extraction progress to the UI via Server-Sent Events (SSE) or WebSockets.
+- **GPU Inference Acceleration**: Deploy RapidOCR / TrOCR on GPU-accelerated microVMs (CUDA / TensorRT) to reduce scanned page recognition latency from ~20s down to < 1.5s per page.
+- **Expanded International Bank Profiles**: Add dedicated profiles for US, UK, EU, and Middle Eastern banks (Chase, Bank of America, Barclays, Emirates NBD) with auto-detection for `MM/DD/YYYY` vs `DD/MM/YYYY` date ambiguities.
+- **Automated Human-in-the-Loop Active Learning**: Automatically trigger model weight updates when users reclassify transactions in the UI, persisting correction history to `data/feedback.jsonl`.
+- **Receipt & Invoice Reconciliation**: Two-way cross-matching between bank transactions and scanned invoices / GST receipts to verify tax compliance and vendor payments.
+
+---
+
 ## 🛡️ License
 
 Distributed under the MIT License. See `LICENSE` for more information.
-
