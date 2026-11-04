@@ -118,22 +118,6 @@ Navigate to `http://localhost:8000` in your web browser.
 
 ---
 
-## 🐳 Docker Deployment
-
-The repository includes a production-ready `Dockerfile` with Debian base, Python 3.12, and `tesseract-ocr` pre-configured:
-
-```bash
-# Build Docker image
-docker build -t bank-statement-processor .
-
-# Run container
-docker run -d -p 8000:8000 --name bank-processor bank-statement-processor
-```
-
-Access the application at `http://localhost:8000`.
-
----
-
 ## ☁️ Vercel Serverless Deployment
 
 The project is pre-configured for Vercel Serverless deployment via `vercel.json` and `api/index.py`:
