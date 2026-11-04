@@ -1,0 +1,107 @@
+"""FastAPI application factory, lifespan management, and router composition."""
+
+from __future__ import annotations
+
+import logging
+import os
+import sys
+from contextlib import asynccontextmanager
+from pathlib import Path
+from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.templating import Jinja2Templates
+
+# Ensure project root is in sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from app.routers import pages, api, exports
+from core.banks.registry import BankRegistry
+from core.classification.rules_engine import RulesEngine
+from core.classification.ml_model import NumpyClassifier
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(name)s: %(message)s")
+logger = logging.getLogger("bank_statement_system")
+
+PUBLIC_DIR = PROJECT_ROOT / "public"
+TEMPLATES_DIR = PROJECT_ROOT / "app" / "templates"
+templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Application lifespan context: preloads registries, rules, and ML weights."""
+    logger.info("Initializing Bank Statement Processing System...")
+    # Pre-warm bank registry
+    registry = BankRegistry()
+    registry.load_all()
+    logger.info("Bank profiles loaded: %s", ", ".join(registry.list_banks()))
+
+    # Pre-warm classification engine
+    rules = RulesEngine()
+    model = NumpyClassifier()
+    logger.info("Classification engines initialized (Rules: %d, ML: %s)", len(rules.rules), "Loaded" if model.is_loaded else "Untrained")
+
+    yield
+    logger.info("Shutting down Bank Statement Processing System...")
+
+
+def create_app() -> FastAPI:
+    """FastAPI application factory."""
+    app = FastAPI(
+        title="Bank Statement Processing & Classification System",
+        description="Production prototype for multi-bank statement parsing, ledger reconciliation, and non-LLM machine learning expense categorization.",
+        version="1.0.0",
+        lifespan=lifespan,
+        docs_url="/docs",
+        redoc_url="/redoc",
+    )
+
+    # Static assets
+    PUBLIC_DIR.mkdir(parents=True, exist_ok=True)
+    app.mount("/static", StaticFiles(directory=str(PUBLIC_DIR)), name="static")
+
+    # Include routers
+    app.include_router(pages.router)
+    app.include_router(api.router)
+    app.include_router(exports.router)
+
+    # Custom Error Handlers
+    @app.exception_handler(404)
+    async def not_found_handler(request: Request, exc):
+        if request.url.path.startswith("/api/"):
+            return JSONResponse(status_code=404, content={"error": "NOT_FOUND", "message": "Endpoint not found"})
+        return templates.TemplateResponse(
+            request=request,
+            name="partials/error.html",
+            context={
+                "error_title": "404 - Not Found",
+                "error_message": "The requested statement session or page does not exist.",
+                "error_code": "NOT_FOUND",
+            },
+            status_code=404,
+        )
+
+    @app.exception_handler(500)
+    async def server_error_handler(request: Request, exc):
+        logger.exception("Internal server error: %s", exc)
+        if request.url.path.startswith("/api/"):
+            return JSONResponse(status_code=500, content={"error": "SERVER_ERROR", "message": str(exc)})
+        return templates.TemplateResponse(
+            request=request,
+            name="partials/error.html",
+            context={
+                "error_title": "500 - Processing Error",
+                "error_message": "An unexpected error occurred during statement processing.",
+                "error_code": "INTERNAL_ERROR",
+            },
+            status_code=500,
+        )
+
+    return app
+
+
+# Root app instance for Vercel / Uvicorn
+app = create_app()

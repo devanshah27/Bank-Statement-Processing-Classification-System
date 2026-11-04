@@ -1,0 +1,643 @@
+# Priority-ordered classification rules.
+# Lower priority number = evaluated first (higher precedence).
+#
+# Condition types:
+#   pattern            : Python regex applied to normalised description (re.search, IGNORECASE)
+#   payment_mode       : exact match against detected payment mode
+#                        (UPI | NEFT | IMPS | RTGS | ATM | POS | CHQ | ACH | ECS | NACH | CASH)
+#   direction          : DR  or  CR
+#   amount_min         : transaction amount >= value  (inclusive)
+#   amount_max         : transaction amount <= value  (inclusive)
+#   description_contains: list of keywords — ANY match triggers (case-insensitive substring)
+#
+# All conditions within a rule are AND-combined.
+
+rules:
+  # ── Priority 10 — ATM & Cash ──────────────────────────────────────────────
+  - id: "atm_withdrawal"
+    priority: 10
+    name: "ATM Cash Withdrawal"
+    conditions:
+      - type: payment_mode
+        value: "ATM"
+      - type: direction
+        value: "DR"
+    category: "ATM/Cash Withdrawal"
+    confidence: 0.95
+    reason: "ATM debit transactions are cash withdrawals"
+
+  - id: "atm_withdrawal_pattern"
+    priority: 11
+    name: "ATM Withdrawal by Description"
+    conditions:
+      - type: pattern
+        value: "\\batm\\b|cash withdrawal|atm cash|atw "
+      - type: direction
+        value: "DR"
+    category: "ATM/Cash Withdrawal"
+    confidence: 0.93
+    reason: "Description indicates ATM or cash withdrawal"
+
+  - id: "cash_deposit"
+    priority: 12
+    name: "Cash Deposit"
+    conditions:
+      - type: pattern
+        value: "cash deposit|cdm deposit|cash dep|branch cash credit"
+      - type: direction
+        value: "CR"
+    category: "Cash Deposit"
+    confidence: 0.93
+    reason: "Description indicates cash deposit at branch or CDM"
+
+  # ── Priority 15 — IRCTC / Railways ───────────────────────────────────────
+  - id: "irctc_travel"
+    priority: 15
+    name: "IRCTC / Indian Railways"
+    conditions:
+      - type: description_contains
+        value: ["irctc", "indian railway", "ir ctc", "i r c t c", "indianrailways"]
+    category: "Transport/Fuel/Travel"
+    confidence: 0.95
+    reason: "IRCTC / Indian Railways keyword in description"
+
+  # ── Priority 20 — Salary / Income ─────────────────────────────────────────
+  - id: "salary_credit"
+    priority: 20
+    name: "Salary Credit"
+    conditions:
+      - type: pattern
+        value: "salary|sal credit|payroll|ctc pay|emolument|monthly pay|staff pay|wages"
+      - type: direction
+        value: "CR"
+      - type: amount_min
+        value: 5000
+    category: "Salary/Income"
+    confidence: 0.90
+    reason: "Salary-related keyword with credit direction and minimum threshold"
+
+  - id: "freelance_income"
+    priority: 21
+    name: "Freelance / Consulting Income"
+    conditions:
+      - type: pattern
+        value: "freelance|consulting fee|professional fee|honorarium|stipend"
+      - type: direction
+        value: "CR"
+      - type: amount_min
+        value: 1000
+    category: "Salary/Income"
+    confidence: 0.80
+    reason: "Freelance or consulting income keyword with credit"
+
+  - id: "interest_earned"
+    priority: 22
+    name: "Interest Earned"
+    conditions:
+      - type: pattern
+        value: "interest credit|int cr|int paid|interest earned|savings interest|fd interest|rd interest|interest on deposit|int on fd"
+      - type: direction
+        value: "CR"
+    category: "Interest Earned"
+    confidence: 0.95
+    reason: "Interest credit keyword in description"
+
+  # ── Priority 25 — Loan / EMI ──────────────────────────────────────────────
+  - id: "loan_emi_payment"
+    priority: 25
+    name: "Loan / EMI Debit"
+    conditions:
+      - type: pattern
+        value: "\\bemi\\b|loan emi|home loan|car loan|vehicle loan|personal loan|housing loan|loan instalment|equated monthly|loan repayment|emi debit"
+      - type: direction
+        value: "DR"
+    category: "Loan/EMI"
+    confidence: 0.90
+    reason: "EMI or loan repayment keyword in debit transaction"
+
+  - id: "nach_emi"
+    priority: 26
+    name: "NACH/ECS Auto-debit EMI"
+    conditions:
+      - type: pattern
+        value: "nach|ecs|mandate|auto debit|si debit|standing instruction"
+      - type: direction
+        value: "DR"
+      - type: amount_min
+        value: 1000
+    category: "Loan/EMI"
+    confidence: 0.70
+    reason: "NACH/ECS auto-debit often used for loan EMIs"
+
+  # ── Priority 28 — Credit Card Payment ─────────────────────────────────────
+  - id: "credit_card_payment"
+    priority: 28
+    name: "Credit Card Bill Payment"
+    conditions:
+      - type: pattern
+        value: "credit card|cc payment|cc bill|creditcard bill|card payment|card bill|cred pay|visa card payment|mastercard payment"
+      - type: direction
+        value: "DR"
+    category: "Credit Card Payment"
+    confidence: 0.90
+    reason: "Credit card payment keyword in debit description"
+
+  # ── Priority 30 — UPI Transfers ───────────────────────────────────────────
+  - id: "upi_transfer_debit"
+    priority: 30
+    name: "UPI Transfer Out"
+    conditions:
+      - type: payment_mode
+        value: "UPI"
+      - type: direction
+        value: "DR"
+      - type: pattern
+        value: "upi-|upi/"
+    category: "Transfers"
+    confidence: 0.65
+    reason: "UPI debit; specific merchant matching takes higher priority"
+
+  - id: "upi_transfer_credit"
+    priority: 31
+    name: "UPI Transfer In"
+    conditions:
+      - type: payment_mode
+        value: "UPI"
+      - type: direction
+        value: "CR"
+      - type: pattern
+        value: "upi-|upi/"
+    category: "Transfers"
+    confidence: 0.65
+    reason: "UPI credit from another person"
+
+  - id: "neft_rtgs_transfer"
+    priority: 32
+    name: "NEFT / RTGS Transfer"
+    conditions:
+      - type: pattern
+        value: "neft|rtgs|imps"
+      - type: direction
+        value: "DR"
+    category: "Transfers"
+    confidence: 0.70
+    reason: "NEFT/RTGS/IMPS outward transfer"
+
+  # ── Priority 35 — Cheque ──────────────────────────────────────────────────
+  - id: "cheque_debit"
+    priority: 35
+    name: "Cheque Payment"
+    conditions:
+      - type: payment_mode
+        value: "CHQ"
+      - type: direction
+        value: "DR"
+    category: "Cheque"
+    confidence: 0.90
+    reason: "Cheque debit"
+
+  - id: "cheque_credit"
+    priority: 36
+    name: "Cheque Receipt"
+    conditions:
+      - type: payment_mode
+        value: "CHQ"
+      - type: direction
+        value: "CR"
+    category: "Cheque"
+    confidence: 0.90
+    reason: "Cheque credit received"
+
+  - id: "cheque_pattern"
+    priority: 37
+    name: "Cheque by Description"
+    conditions:
+      - type: pattern
+        value: "\\bchq\\b|\\bcheque\\b|clg chq|clearing cheque|chq no|chq clearing"
+    category: "Cheque"
+    confidence: 0.85
+    reason: "Cheque keyword in description"
+
+  # ── Priority 40 — Bank Charges ────────────────────────────────────────────
+  - id: "bank_charges"
+    priority: 9
+    name: "Bank Charges / Fees"
+    conditions:
+      - type: pattern
+        value: "atm.*(?:charge|fee|txn charge)|service charge|sms charge|sms alert|annual fee|card fee|processing fee|bank charge|maintenance charge|chq book|cheque book|dd charge|neft charge|atm charge|interchange fee|late payment fee|penalty|fine|charges debited|min bal|minimum balance charge|txn charges"
+      - type: direction
+        value: "DR"
+    category: "Bank Charges/Fees"
+    confidence: 0.90
+    reason: "Bank service charge or fee in description"
+
+  - id: "gst_on_charges"
+    priority: 41
+    name: "GST on Bank Charges"
+    conditions:
+      - type: pattern
+        value: "gst on|igst|cgst|sgst"
+      - type: direction
+        value: "DR"
+    category: "Bank Charges/Fees"
+    confidence: 0.80
+    reason: "GST debit on bank service charges"
+
+  # ── Priority 45 — Taxes ───────────────────────────────────────────────────
+  - id: "tax_payment"
+    priority: 45
+    name: "Tax Payment"
+    conditions:
+      - type: pattern
+        value: "income tax|tds payment|advance tax|tax deducted|self assessment tax|direct tax|e-tax|income tax dept|itr|nsdl tax|challan 280|challan 281"
+    category: "Taxes"
+    confidence: 0.90
+    reason: "Tax-related keyword in description"
+
+  - id: "gst_payment"
+    priority: 46
+    name: "GST Payment"
+    conditions:
+      - type: pattern
+        value: "gst payment|gst challan|gstin payment|goods and service tax pmt"
+      - type: direction
+        value: "DR"
+    category: "Taxes"
+    confidence: 0.90
+    reason: "GST payment to government"
+
+  # ── Priority 50 — Investments ─────────────────────────────────────────────
+  - id: "mutual_fund_sip"
+    priority: 50
+    name: "Mutual Fund / SIP"
+    conditions:
+      - type: pattern
+        value: "mutual fund|mf sip|\\bsip\\b|nfo |amfi|bse star|mf purchase|mf invest|cams |karvy|franklin templeton|mirae|kotak mf|hdfc mf|icici pru mf|axis mf|sbi mf|nippon mf|dsp mf|uti mf|aditya birla mf|parag parikh|zerodha mf|groww mf"
+      - type: direction
+        value: "DR"
+    category: "Investments"
+    confidence: 0.90
+    reason: "Mutual fund SIP or purchase in description"
+
+  - id: "stock_purchase"
+    priority: 51
+    name: "Stock / Equity Purchase"
+    conditions:
+      - type: pattern
+        value: "zerodha|groww|upstox|angel broking|angel one|hdfc securities|icici direct|kotak securities|sharekhan|5paisa|motilal oswal"
+      - type: direction
+        value: "DR"
+    category: "Investments"
+    confidence: 0.85
+    reason: "Known stockbroker debit"
+
+  - id: "fd_rd_investment"
+    priority: 52
+    name: "Fixed / Recurring Deposit"
+    conditions:
+      - type: pattern
+        value: "\\bfd\\b|fixed deposit|recurring deposit|\\brd\\b|fd open|rd instalment|fd creation|rd opening"
+      - type: direction
+        value: "DR"
+    category: "Investments"
+    confidence: 0.88
+    reason: "FD/RD creation or instalment in description"
+
+  # ── Priority 55 — Insurance ───────────────────────────────────────────────
+  - id: "insurance_premium"
+    priority: 55
+    name: "Insurance Premium"
+    conditions:
+      - type: pattern
+        value: "insurance premium|ins prem|policy premium|lic premium|health insurance|life insurance|motor insurance|vehicle insurance|car insurance|term plan|ulip|endowment|bajaj allianz|hdfc life|icici pru life|sbi life|star health|niva bupa|care insurance|religare"
+      - type: direction
+        value: "DR"
+    category: "Insurance"
+    confidence: 0.88
+    reason: "Insurance premium payment keyword in description"
+
+  # ── Priority 60 — Utilities ───────────────────────────────────────────────
+  - id: "electricity_bill"
+    priority: 60
+    name: "Electricity Bill"
+    conditions:
+      - type: pattern
+        value: "electricity|bescom|msedcl|tpddl|cesc|kseb|torrent power|bses|tangedco|tneb|apepdcl|tsspdcl|wbsedcl|dhbvn|uhbvn|jvvnl|avvnl|jdvvnl|pgvcl|mgvcl|dgvcl|ugvcl|cspdcl|mseb|electric supply"
+    category: "Utilities"
+    confidence: 0.90
+    reason: "Electricity board or electricity bill keyword"
+
+  - id: "water_bill"
+    priority: 61
+    name: "Water / Municipal Bill"
+    conditions:
+      - type: pattern
+        value: "water bill|water charges|municipal bill|corporation water|bbmp|mcgm|bmcw|water supply|jal board|water tax"
+    category: "Utilities"
+    confidence: 0.88
+    reason: "Water or municipal bill keyword"
+
+  - id: "lpg_gas"
+    priority: 62
+    name: "LPG / Gas Bill"
+    conditions:
+      - type: pattern
+        value: "hp gas|hpcl gas|indane|iocl gas|bharat gas|bpcl gas|lpg booking|gas cylinder|gas refill|lpg refund|gas subsidy"
+    category: "Utilities"
+    confidence: 0.90
+    reason: "LPG/gas provider keyword in description"
+
+  # ── Priority 65 — Mobile / Internet / DTH ────────────────────────────────
+  - id: "mobile_recharge"
+    priority: 65
+    name: "Mobile Recharge / Postpaid Bill"
+    conditions:
+      - type: pattern
+        value: "airtel|jio recharge|reliance jio|vodafone|vi mobile|bsnl|idea cellular|mobile recharge|prepaid recharge|postpaid bill|mobile bill|telecom"
+    category: "Mobile/Internet/DTH"
+    confidence: 0.88
+    reason: "Telecom provider or mobile recharge keyword"
+
+  - id: "broadband_internet"
+    priority: 66
+    name: "Internet / Broadband Bill"
+    conditions:
+      - type: pattern
+        value: "broadband|act fibernet|hathway|tikona|beam telecom|spectranet|you broadband|atria convergence|airtel broadband|jio fiber|jiofiber|internet bill"
+    category: "Mobile/Internet/DTH"
+    confidence: 0.88
+    reason: "Broadband or internet service keyword"
+
+  - id: "dth_subscription"
+    priority: 67
+    name: "DTH Subscription"
+    conditions:
+      - type: pattern
+        value: "tata play|tataplay|tata sky|tatasky|sun direct|sundirect|dish tv|dishtv|airtel dth|videocon d2h|d2h"
+    category: "Mobile/Internet/DTH"
+    confidence: 0.90
+    reason: "DTH provider keyword in description"
+
+  # ── Priority 70 — Food & Dining ───────────────────────────────────────────
+  - id: "food_delivery"
+    priority: 70
+    name: "Food Delivery"
+    conditions:
+      - type: pattern
+        value: "swiggy|zomato|bundl tech|zomato media"
+      - type: direction
+        value: "DR"
+    category: "Food & Dining"
+    confidence: 0.95
+    reason: "Known food delivery platform in description"
+
+  - id: "restaurant_dining"
+    priority: 71
+    name: "Restaurant / QSR"
+    conditions:
+      - type: pattern
+        value: "mcdonald|kfc|dominos|pizza hut|subway|burger king|haldiram|starbucks|cafe coffee day|\\bccd\\b|jubilant food|restaurant|dhaba|hotel|eatery|bistro|bakery|food court|canteen"
+      - type: direction
+        value: "DR"
+    category: "Food & Dining"
+    confidence: 0.80
+    reason: "Restaurant or food outlet keyword"
+
+  # ── Priority 75 — Groceries ───────────────────────────────────────────────
+  - id: "grocery_store"
+    priority: 75
+    name: "Grocery / Supermarket"
+    conditions:
+      - type: pattern
+        value: "bigbasket|big basket|blinkit|grofers|dmart|d mart|avenue supermarts|reliance fresh|reliance smart|jiomart|spencers|more supermarket|more retail|zepto|nature's basket|star bazaar|hypercity|easyday|le marche|grocery|supermarket|hypermarket"
+      - type: direction
+        value: "DR"
+    category: "Groceries"
+    confidence: 0.88
+    reason: "Known grocery store or supermarket keyword"
+
+  # ── Priority 80 — Shopping / E-commerce ──────────────────────────────────
+  - id: "ecommerce_shopping"
+    priority: 80
+    name: "E-commerce / Online Shopping"
+    conditions:
+      - type: pattern
+        value: "amazon|flipkart|myntra|meesho|ajio|nykaa|snapdeal|tatacliq|croma|vijay sales|shopclues|paytmmall|paytm mall|limeroad|jabong|pepperfry|urban ladder|ikea"
+      - type: direction
+        value: "DR"
+    category: "Shopping/E-commerce"
+    confidence: 0.88
+    reason: "Known e-commerce platform in debit transaction"
+
+  - id: "pos_retail"
+    priority: 81
+    name: "POS Retail Purchase"
+    conditions:
+      - type: payment_mode
+        value: "POS"
+      - type: direction
+        value: "DR"
+    category: "Shopping/E-commerce"
+    confidence: 0.60
+    reason: "POS terminal debit — likely retail shopping"
+
+  # ── Priority 85 — Transport / Travel ─────────────────────────────────────
+  - id: "cab_ride"
+    priority: 85
+    name: "Cab / Ride Sharing"
+    conditions:
+      - type: pattern
+        value: "\\buber\\b|\\bola\\b|rapido|yulu|meru|fastrack cab|bluebird|taxi|cab "
+      - type: direction
+        value: "DR"
+    category: "Transport/Fuel/Travel"
+    confidence: 0.88
+    reason: "Ride-sharing or taxi service keyword"
+
+  - id: "fuel_petrol"
+    priority: 86
+    name: "Fuel / Petrol Pump"
+    conditions:
+      - type: pattern
+        value: "petrol|diesel|cng fill|hp petrol|iocl petrol|bpcl petrol|essar fuel|fuel station|fuelling|gas station|petrols"
+      - type: direction
+        value: "DR"
+    category: "Transport/Fuel/Travel"
+    confidence: 0.88
+    reason: "Fuel or petrol station keyword"
+
+  - id: "flight_hotel_travel"
+    priority: 87
+    name: "Flight / Hotel / Travel Booking"
+    conditions:
+      - type: pattern
+        value: "makemytrip|cleartrip|yatra|goibibo|redbus|easemytrip|booking.com|airbnb|oyo rooms|treebo|fabhotels|indigo|air india|spicejet|vistara|air asia|go first|hotel booking|travel booking|flight booking"
+      - type: direction
+        value: "DR"
+    category: "Transport/Fuel/Travel"
+    confidence: 0.88
+    reason: "Known travel booking platform or airline"
+
+  - id: "metro_bus_pass"
+    priority: 88
+    name: "Metro / Bus / Public Transport"
+    conditions:
+      - type: pattern
+        value: "dmrc|metro rail|bmtc|best bus|apsrtc|ksrtc|msrtc|utsav card|transit card|metro card|transport card|bus pass|commuter"
+    category: "Transport/Fuel/Travel"
+    confidence: 0.88
+    reason: "Public transport keyword"
+
+  # ── Priority 90 — Entertainment / Subscriptions ───────────────────────────
+  - id: "ott_subscription"
+    priority: 90
+    name: "OTT / Streaming Subscription"
+    conditions:
+      - type: pattern
+        value: "netflix|hotstar|disney|amazon prime|primevideo|spotify|zee5|sony liv|sonyliv|jiocinema|mxplayer|alt balaji|voot|erosnow|hungama|apple tv|youtube premium"
+      - type: direction
+        value: "DR"
+    category: "Entertainment/Subscriptions"
+    confidence: 0.93
+    reason: "Known OTT or streaming platform in description"
+
+  - id: "cinema_events"
+    priority: 91
+    name: "Cinema / Events"
+    conditions:
+      - type: pattern
+        value: "pvr|inox|cinepolis|bookmyshow|bookmyshow|bigtree|carnival cinemas|ticket booking|event ticket"
+      - type: direction
+        value: "DR"
+    category: "Entertainment/Subscriptions"
+    confidence: 0.90
+    reason: "Cinema or event booking platform keyword"
+
+  - id: "gaming"
+    priority: 92
+    name: "Gaming"
+    conditions:
+      - type: pattern
+        value: "dream11|my11circle|mpl game|winzo|mobile premier league|fantasy sports|gaming|playstore|google play|apple app store|steam game|epic games"
+      - type: direction
+        value: "DR"
+    category: "Entertainment/Subscriptions"
+    confidence: 0.80
+    reason: "Gaming or fantasy sports platform keyword"
+
+  # ── Priority 95 — Healthcare ───────────────────────────────────────────────
+  - id: "pharmacy"
+    priority: 95
+    name: "Pharmacy / Medicine"
+    conditions:
+      - type: pattern
+        value: "apollo pharmacy|medplus|netmeds|1mg|pharmeasy|practo|guardian pharmacy|wellness forever|chemist|pharmacy|medical store|medicine|drug store"
+      - type: direction
+        value: "DR"
+    category: "Healthcare/Pharmacy"
+    confidence: 0.88
+    reason: "Pharmacy or medicine-related keyword"
+
+  - id: "hospital_clinic"
+    priority: 96
+    name: "Hospital / Clinic"
+    conditions:
+      - type: pattern
+        value: "hospital|clinic|nursing home|healthcare|diagnostic|lab test|pathology|radiology|dr\\.|doctor|medical centre|health centre|ayurveda|physiotherapy|dental"
+      - type: direction
+        value: "DR"
+    category: "Healthcare/Pharmacy"
+    confidence: 0.80
+    reason: "Hospital, clinic, or healthcare service keyword"
+
+  # ── Priority 100 — Education ───────────────────────────────────────────────
+  - id: "education_fees"
+    priority: 100
+    name: "Education / Tuition Fees"
+    conditions:
+      - type: pattern
+        value: "school fee|college fee|tuition fee|university fee|admission fee|exam fee|course fee|byjus|byju's|unacademy|vedantu|coursera|udemy|linkedin learning|niit|coaching|academy|institute fee|semester fee"
+      - type: direction
+        value: "DR"
+    category: "Education"
+    confidence: 0.88
+    reason: "Educational institution or platform keyword"
+
+  # ── Priority 105 — Rent ───────────────────────────────────────────────────
+  - id: "rent_payment"
+    priority: 105
+    name: "Rent Payment"
+    conditions:
+      - type: pattern
+        value: "rent|house rent|monthly rent|flat rent|rental|pg rent|accommodation rent|nobroker|magicbricks rent|housing.com rent|rentomojo"
+      - type: direction
+        value: "DR"
+      - type: amount_min
+        value: 2000
+    category: "Rent"
+    confidence: 0.80
+    reason: "Rent keyword with minimum amount threshold"
+
+  # ── Priority 110 — Refunds ────────────────────────────────────────────────
+  - id: "refund_reversal"
+    priority: 4
+    name: "Refund / Reversal"
+    conditions:
+      - type: pattern
+        value: "refund|reversal|cashback credit|chargeback|money back|failed txn|failed transaction reversed|return credit|ref credit|dispute credit"
+      - type: direction
+        value: "CR"
+    category: "Refunds/Reversals"
+    confidence: 0.88
+    reason: "Refund or reversal keyword in credit transaction"
+
+  # ── Priority 115 — Wallet Top-up ─────────────────────────────────────────
+  - id: "wallet_topup"
+    priority: 115
+    name: "Wallet / Prepaid Top-up"
+    conditions:
+      - type: pattern
+        value: "paytm wallet|phonepe wallet|amazon pay wallet|wallet top.?up|wallet load|wallet credit|prepaid wallet"
+      - type: direction
+        value: "DR"
+    category: "Transfers"
+    confidence: 0.78
+    reason: "Digital wallet top-up in description"
+
+  # ── Priority 120 — Dividend / Maturity ───────────────────────────────────
+  - id: "dividend_income"
+    priority: 120
+    name: "Dividend / Maturity Credit"
+    conditions:
+      - type: pattern
+        value: "dividend|div credit|mutual fund dividend|mf dividend|fd maturity|rd maturity|bond maturity|bond interest|ncd interest|maturity proceeds"
+      - type: direction
+        value: "CR"
+    category: "Interest Earned"
+    confidence: 0.85
+    reason: "Dividend or maturity credit in description"
+
+  # ── Priority 125 — Fallback Transfers ────────────────────────────────────
+  - id: "inward_transfer"
+    priority: 125
+    name: "Inward Bank Transfer"
+    conditions:
+      - type: pattern
+        value: "neft cr|rtgs cr|imps cr|neft credit|rtgs credit|inward neft|inward rtgs|fund transfer credit"
+      - type: direction
+        value: "CR"
+    category: "Transfers"
+    confidence: 0.72
+    reason: "Inward bank transfer credit"
+
+  - id: "outward_transfer"
+    priority: 126
+    name: "Outward Bank Transfer"
+    conditions:
+      - type: pattern
+        value: "neft dr|rtgs dr|imps dr|neft debit|rtgs debit|outward neft|fund transfer debit"
+      - type: direction
+        value: "DR"
+    category: "Transfers"
+    confidence: 0.72
+    reason: "Outward bank transfer debit"

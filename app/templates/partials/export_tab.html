@@ -1,0 +1,80 @@
+<div style="max-width: 900px; margin: 0 auto;">
+  
+  <div class="fintech-card" style="padding: 2.5rem 2rem; text-align: center; margin-bottom: 2rem;">
+    <div style="width: 64px; height: 64px; border-radius: var(--radius-xl); background: var(--bg-surface-active); color: var(--primary); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+      <i data-lucide="file-spreadsheet" style="width: 32px; height: 32px;"></i>
+    </div>
+
+    <h2 style="font-size: 1.625rem; font-weight: 800; color: var(--text-primary); margin-bottom: 0.5rem;">
+      Export Processed Statement Data
+    </h2>
+    <p style="color: var(--text-secondary); font-size: 0.9375rem; max-width: 580px; margin: 0 auto 2rem; line-height: 1.6;">
+      Download complete financial records including classified expenses, auto-reconciled debit/credit ledger, and multi-tab summaries.
+    </p>
+
+    <!-- Download Buttons -->
+    <div style="display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+      <a href="/export/{{ session_id }}/xlsx" class="btn btn-primary btn-lg" style="box-shadow: 0 4px 16px var(--primary-glow);">
+        <i data-lucide="download" style="width: 20px; height: 20px;"></i>
+        <span>Download Excel Workbook (.xlsx)</span>
+      </a>
+
+      <a href="/export/{{ session_id }}/csv" class="btn btn-secondary btn-lg">
+        <i data-lucide="file-text" style="width: 20px; height: 20px;"></i>
+        <span>Download CSV (UTF-8-SIG)</span>
+      </a>
+    </div>
+
+    <!-- Excel Structure Preview Grid -->
+    <div style="text-align: left; background: var(--bg-surface-alt); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 1.5rem;">
+      <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); letter-spacing: 0.05em; margin-bottom: 1rem; display: flex; align-items: center; gap: 6px;">
+        <i data-lucide="layers" style="width: 14px; height: 14px; color: var(--primary);"></i>
+        <span>Included Excel Worksheets (6 Tabs)</span>
+      </div>
+
+      <div class="grid-3-col" style="margin-bottom: 0;">
+        <div class="meta-field">
+          <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;">1. Transactions</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Full classified ledger with balance & source</div>
+        </div>
+
+        <div class="meta-field">
+          <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;">2. Account Summary</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Holder, bank, IFSC, period, balances</div>
+        </div>
+
+        <div class="meta-field">
+          <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;">3. Category Summary</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Aggregated spend totals by category</div>
+        </div>
+
+        <div class="meta-field">
+          <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;">4. Monthly Summary</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Inflows, outflows, and net cash flow</div>
+        </div>
+
+        <div class="meta-field">
+          <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;">5. Recurring Payments</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Detected cadence, amount, and next due</div>
+        </div>
+
+        <div class="meta-field">
+          <div style="font-weight: 700; color: var(--text-primary); font-size: 0.875rem;">6. Quality Report</div>
+          <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Integrity audit and reconciliation grade</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Metadata Footnote -->
+    <div style="margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; font-size: 0.75rem; color: var(--text-muted); flex-wrap: wrap; gap: 0.5rem;">
+      <span>Universal Compatibility: UTF-8-BOM prevents encoding artifacts in MS Excel & Google Sheets</span>
+      <span class="font-mono">Session ID: {{ session_id }}</span>
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+if (window.lucide) lucide.createIcons();
+</script>

@@ -1,0 +1,130 @@
+<div class="grid-2-col">
+  <!-- Account Credentials Card -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div class="card-title">
+        <i data-lucide="user-check" style="color: var(--primary); width: 18px; height: 18px;"></i>
+        <span>Account Credentials & Identity</span>
+      </div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <table class="fintech-table table-comfortable" style="box-shadow: none;">
+        <tbody>
+          <tr>
+            <td style="color: var(--text-muted); width: 40%;">Account Holder</td>
+            <td style="font-weight: 700; color: var(--text-primary);">
+              {{ account.account_holder_name or account.holder or "Not Detected" }}
+            </td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Issuing Bank</td>
+            <td style="font-weight: 700; color: var(--primary);">
+              {{ account.bank_name or "Generic Financial Institution" }}
+            </td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Account Number</td>
+            <td class="font-mono" style="font-weight: 700;">
+              {{ account.account_number_masked or account.account_number or "N/A" }}
+            </td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Account Classification</td>
+            <td>
+              <span class="badge badge-neutral">{{ account.account_type or account.acc_type or "Savings / Current" }}</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Customer Identification (CIF)</td>
+            <td class="font-mono">{{ account.customer_id or account.cust_id or "N/A" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Branch & Routing Card -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div class="card-title">
+        <i data-lucide="building-2" style="color: var(--cyan); width: 18px; height: 18px;"></i>
+        <span>Branch & Routing Codes</span>
+      </div>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <table class="fintech-table table-comfortable" style="box-shadow: none;">
+        <tbody>
+          <tr>
+            <td style="color: var(--text-muted); width: 40%;">IFSC Code</td>
+            <td class="font-mono" style="font-weight: 700; color: var(--cyan);">
+              {{ account.ifsc or "N/A" }}
+            </td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">MICR Code</td>
+            <td class="font-mono">{{ account.micr or "N/A" }}</td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Branch Name</td>
+            <td>{{ account.branch or "Main Branch" }}</td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Registered Branch Address</td>
+            <td style="font-size: 0.8125rem; color: var(--text-secondary);">
+              {{ account.address or "N/A" }}
+            </td>
+          </tr>
+          <tr>
+            <td style="color: var(--text-muted);">Functional Currency</td>
+            <td style="font-weight: 700;">{{ account.currency or "INR (₹)" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Statement Balances Grid Card -->
+<div class="fintech-card" style="margin-top: 1.5rem;">
+  <div class="card-header">
+    <div class="card-title">
+      <i data-lucide="wallet" style="color: var(--emerald); width: 18px; height: 18px;"></i>
+      <span>Statement Timeline & Balance Verification</span>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="grid-4-col" style="text-align: center;">
+      <div class="meta-field">
+        <div class="meta-field-label" style="justify-content: center;">Statement From</div>
+        <div class="font-mono" style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-top: 0.35rem;">
+          {{ account.period_from or "N/A" }}
+        </div>
+      </div>
+
+      <div class="meta-field">
+        <div class="meta-field-label" style="justify-content: center;">Statement To</div>
+        <div class="font-mono" style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); margin-top: 0.35rem;">
+          {{ account.period_to or "N/A" }}
+        </div>
+      </div>
+
+      <div class="meta-field">
+        <div class="meta-field-label" style="justify-content: center;">Opening Balance</div>
+        <div class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-top: 0.35rem;">
+          {% if account.opening_balance is not none %}₹{{ "%.2f"|format(account.opening_balance|float) }}{% else %}N/A{% endif %}
+        </div>
+      </div>
+
+      <div class="meta-field">
+        <div class="meta-field-label" style="justify-content: center;">Closing Balance</div>
+        <div class="font-mono" style="font-size: 1.25rem; font-weight: 800; color: var(--emerald); margin-top: 0.35rem;">
+          {% if account.closing_balance is not none %}₹{{ "%.2f"|format(account.closing_balance|float) }}{% else %}N/A{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+if (window.lucide) lucide.createIcons();
+</script>

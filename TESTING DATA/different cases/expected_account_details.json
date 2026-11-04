@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Sample National Bank",
+    "holder": "NEHA PATEL",
+    "acc_no": "814660325134",
+    "ifsc": "SNBX0050631",
+    "micr": "177777868",
+    "branch": "Ahmedabad Navrangpura",
+    "cust_id": "981836553",
+    "acc_type": "Savings Account",
+    "address": "69, Sample Residency, Ahmedabad - 383085"
+  },
+  "period_from": "2026-09-01",
+  "period_to": "2026-09-30",
+  "opening_balance": "25000.00",
+  "closing_balance": "50322.43",
+  "rows": 17
+}

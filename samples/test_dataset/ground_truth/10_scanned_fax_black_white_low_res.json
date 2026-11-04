@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Mock Finance Bank Ltd",
+    "holder": "KARAN SHAH",
+    "acc_no": "743923474202",
+    "ifsc": "MFBL0219614",
+    "micr": "242478649",
+    "branch": "Bengaluru Indiranagar",
+    "cust_id": "541931922",
+    "acc_type": "Savings Account",
+    "address": "62, Sample Residency, Bengaluru - 408248"
+  },
+  "period_from": "2026-07-01",
+  "period_to": "2026-08-31",
+  "opening_balance": "47000.00",
+  "closing_balance": "27484.37",
+  "row_count": 48
+}

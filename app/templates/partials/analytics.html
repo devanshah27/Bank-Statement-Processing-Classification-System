@@ -1,0 +1,148 @@
+<!-- Visual Charts Row -->
+<div class="grid-2-col">
+  <!-- Spend by Category Doughnut -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">
+          <i data-lucide="pie-chart" style="color: var(--primary); width: 18px; height: 18px;"></i>
+          <span>Expense Distribution by Category</span>
+        </div>
+        <div class="card-subtitle">Aggregated debit volume across top expenditure categories</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="height: 320px; position: relative;">
+        <canvas id="categoryChart" data-chart='{{ category_chart_json|safe }}'></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Monthly Inflow vs Outflow Bar Chart -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">
+          <i data-lucide="bar-chart-3" style="color: var(--emerald); width: 18px; height: 18px;"></i>
+          <span>Monthly Cash Flow Trends</span>
+        </div>
+        <div class="card-subtitle">Comparison of credit inflows vs debit outflows over statement timeline</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div style="height: 320px; position: relative;">
+        <canvas id="monthlyChart" data-chart='{{ monthly_chart_json|safe }}'></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Detailed Breakdowns Row -->
+<div class="grid-2-col">
+  <!-- Top Merchants Breakdown -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">
+          <i data-lucide="store" style="color: var(--primary); width: 18px; height: 18px;"></i>
+          <span>Top Payees & Merchants</span>
+        </div>
+        <div class="card-subtitle">Ranked by total debit volume in statement</div>
+      </div>
+      <span class="badge badge-neutral">{{ top_merchants|length }} Entities</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <table class="fintech-table table-comfortable" style="box-shadow: none;">
+        <thead>
+          <tr>
+            <th>Merchant / Entity</th>
+            <th>Category</th>
+            <th class="text-right">Total Outflow</th>
+            <th class="text-center">Count</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for m in top_merchants %}
+          <tr>
+            <td>
+              <div style="font-weight: 600; color: var(--text-primary);">{{ m.name }}</div>
+            </td>
+            <td>
+              <span class="category-chip">{{ m.category }}</span>
+            </td>
+            <td class="text-right font-mono" style="font-weight: 700; color: var(--rose);">
+              -₹{{ "%.2f"|format(m.total_spend|float) }}
+            </td>
+            <td class="text-center font-mono" style="color: var(--text-muted); font-size: 0.8125rem;">
+              {{ m.count }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+              No merchant spending recorded.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Detected Recurring Subscriptions & Bills -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">
+          <i data-lucide="repeat" style="color: var(--cyan); width: 18px; height: 18px;"></i>
+          <span>Detected Recurring Subscriptions & Fixed Bills</span>
+        </div>
+        <div class="card-subtitle">Periodic debits identified by interval cadence analysis</div>
+      </div>
+      <span class="badge badge-rule">{{ recurring_groups|length }} Recurring</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <table class="fintech-table table-comfortable" style="box-shadow: none;">
+        <thead>
+          <tr>
+            <th>Subscription / Service</th>
+            <th>Frequency</th>
+            <th class="text-right">Average Bill</th>
+            <th>Next Due Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for r in recurring_groups %}
+          <tr>
+            <td>
+              <div style="font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+                <i data-lucide="calendar-clock" style="width: 14px; height: 14px; color: var(--primary);"></i>
+                <span>{{ r.merchant }}</span>
+              </div>
+            </td>
+            <td>
+              <span class="badge badge-rule">{{ r.frequency|upper }}</span>
+            </td>
+            <td class="text-right font-mono" style="font-weight: 700; color: var(--text-primary);">
+              ₹{{ "%.2f"|format(r.avg_amount|float) }}
+            </td>
+            <td class="font-mono" style="font-size: 0.8125rem; color: var(--emerald);">
+              {{ r.next_expected_date or "Calculated Monthly" }}
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="4" style="text-align: center; color: var(--text-muted); padding: 2rem;">
+              No regular recurring subscriptions or periodic bills detected.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<script>
+if (window.lucide) lucide.createIcons();
+</script>

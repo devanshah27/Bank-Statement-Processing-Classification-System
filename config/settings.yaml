@@ -1,0 +1,31 @@
+app:
+  name: "Bank Statement Processing & Classification System"
+  version: "1.0.0"
+  deploy_target: "${DEPLOY_TARGET:local}"  # local | vercel
+
+processing:
+  max_upload_size_mb: 4         # 4 MB on Vercel, 50 MB local
+  max_pages_per_chunk: 20       # for chunked processing on Vercel
+  text_char_threshold: 100      # chars per page below which → OCR
+  image_area_threshold: 0.85    # fraction of page covered by single image → OCR
+  dpi_render: 250
+  balance_tolerance: 0.02       # rupees tolerance for reconciliation
+
+ocr:
+  engine: "${OCR_ENGINE:tesseract}"  # tesseract | rapid | remote
+  tesseract_lang: "eng"
+  tesseract_config: "--oem 1 --psm 6"
+  rapid_det_model: "models/ocr/ch_PP-OCRv4_det_infer.onnx"
+  rapid_rec_model: "models/ocr/en_PP-OCRv4_rec_infer.onnx"
+  remote_url: "${OCR_SERVICE_URL:}"
+  min_confidence: 0.5
+
+classification:
+  rule_confidence_threshold: 0.75  # above this, rule wins over ML
+  ml_confidence_threshold: 0.15    # below this, → Uncategorized (scaled for 23 multiclass softmax)
+  model_path: "models/latest"
+  feedback_file: "data/user_feedback.csv"
+
+logging:
+  level: "${LOG_LEVEL:INFO}"
+  mask_account_numbers: true

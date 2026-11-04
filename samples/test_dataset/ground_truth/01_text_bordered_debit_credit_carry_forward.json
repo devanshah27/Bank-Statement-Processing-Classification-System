@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Sample National Bank",
+    "holder": "KABIR SHARMA",
+    "acc_no": "612641604458",
+    "ifsc": "SNBX0050877",
+    "micr": "812396180",
+    "branch": "Ahmedabad Navrangpura",
+    "cust_id": "640650868",
+    "acc_type": "Savings Account",
+    "address": "28, Sample Residency, Ahmedabad - 399728"
+  },
+  "period_from": "2026-04-01",
+  "period_to": "2026-06-30",
+  "opening_balance": "38450.00",
+  "closing_balance": "37861.95",
+  "row_count": 103
+}

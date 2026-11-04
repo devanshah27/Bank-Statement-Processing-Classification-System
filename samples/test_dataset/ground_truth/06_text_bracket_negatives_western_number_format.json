@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Mock Finance Bank Ltd",
+    "holder": "ARJUN JOSHI",
+    "acc_no": "709957355486",
+    "ifsc": "MFBL0987824",
+    "micr": "665733892",
+    "branch": "Bengaluru Indiranagar",
+    "cust_id": "981545770",
+    "acc_type": "Savings Account",
+    "address": "61, Sample Residency, Bengaluru - 381858"
+  },
+  "period_from": "2026-06-01",
+  "period_to": "2026-08-31",
+  "opening_balance": "33000.00",
+  "closing_balance": "11397.54",
+  "row_count": 82
+}

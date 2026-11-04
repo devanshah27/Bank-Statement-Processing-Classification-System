@@ -1,0 +1,19 @@
+{
+  "account": {
+    "bank_name": "Sample National Bank",
+    "holder": "AARAV SHARMA",
+    "acc_no": "915909799405",
+    "ifsc": "SNBX0204373",
+    "micr": "198656130",
+    "branch": "Ahmedabad Navrangpura",
+    "cust_id": "707951584",
+    "acc_type": "Savings Account",
+    "address": "80, Sample Residency, Ahmedabad - 388477"
+  },
+  "period_from": "2021-07-01",
+  "period_to": "2026-06-30",
+  "opening_balance": "25000.00",
+  "closing_balance": "1334040.61",
+  "row_count": 7700,
+  "total_pages": 218
+}

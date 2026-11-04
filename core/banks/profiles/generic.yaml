@@ -1,0 +1,33 @@
+name: generic
+display_name: "Generic Bank"
+ifsc_prefix: []
+header_keywords: []
+date_formats:
+  - "%d/%m/%Y"
+  - "%d-%m-%Y"
+  - "%d %b %Y"
+  - "%d/%m/%y"
+  - "%Y-%m-%d"
+amount_format: indian
+decimal_separator: "."
+debit_credit_style: separate
+column_order_hint:
+  - date
+  - description
+  - debit
+  - credit
+  - balance
+multiline_narration: true
+value_date_present: false
+ref_no_present: false
+skip_rows_containing:
+  - "BROUGHT FORWARD"
+  - "CARRIED FORWARD"
+  - "BALANCE B/F"
+  - "BAL C/F"
+  - "OPENING BALANCE"
+  - "CLOSING BALANCE"
+  - "TOTAL"
+  - "SUB-TOTAL"
+  - "PAGE TOTAL"
+extra_patterns: {}

@@ -1,0 +1,171 @@
+<!-- Transactions Ledger Toolbar -->
+<div class="table-wrapper">
+  <div class="table-toolbar">
+    <form id="filter-form"
+          hx-get="/result/{{ session_id }}/transactions"
+          hx-target="#tab-content"
+          hx-trigger="change, keyup delay:300ms from:#search-input"
+          class="table-filters">
+      
+      <!-- Search Input -->
+      <div style="flex: 2; min-width: 220px; position: relative;">
+        <i data-lucide="search" style="position: absolute; left: 0.75rem; top: 50%; transform: translateY(-50%); width: 15px; height: 15px; color: var(--text-muted); pointer-events: none;"></i>
+        <input type="text" id="search-input" name="search" value="{{ search or '' }}"
+               placeholder="Filter narration, UTR, merchant..."
+               class="filter-input" style="width: 100%; padding-left: 2.25rem;">
+      </div>
+
+      <!-- Category Filter -->
+      <div style="flex: 1; min-width: 160px;">
+        <select name="category" class="filter-select" style="width: 100%;">
+          <option value="">All Categories</option>
+          {% for cat in all_categories %}
+            <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Direction Filter -->
+      <div style="flex: 1; min-width: 130px;">
+        <select name="direction" class="filter-select" style="width: 100%;">
+          <option value="">All Types (Dr / Cr)</option>
+          <option value="DR" {% if direction_filter == 'DR' %}selected{% endif %}>Debits Only (Outflow)</option>
+          <option value="CR" {% if direction_filter == 'CR' %}selected{% endif %}>Credits Only (Inflow)</option>
+        </select>
+      </div>
+
+      <!-- Flagged Only Filter -->
+      <div style="flex: 1; min-width: 140px;">
+        <select name="flagged_only" class="filter-select" style="width: 100%;">
+          <option value="">All Rows</option>
+          <option value="true" {% if flagged_only %}selected{% endif %}>Flagged for Review</option>
+        </select>
+      </div>
+    </form>
+
+    <!-- Table Density Toggle -->
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <span style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">Density:</span>
+      <div class="table-density-switch">
+        <button type="button" class="density-btn active" data-density="comfortable" onclick="setTableDensity('comfortable')">Comfortable</button>
+        <button type="button" class="density-btn" data-density="compact" onclick="setTableDensity('compact')">Compact</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Transactions Table -->
+  <div class="fintech-table-container">
+    <table class="fintech-table table-comfortable">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Narration / Merchant</th>
+          <th>Reference / UTR</th>
+          <th class="text-right">Debit (Outflow)</th>
+          <th class="text-right">Credit (Inflow)</th>
+          <th class="text-right">Balance</th>
+          <th>Category Classification</th>
+          <th>Source</th>
+          <th>Quality Audit</th>
+          <th style="width: 40px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for tx in transactions %}
+        <tr id="tx-row-{{ tx.row_id }}"
+            data-tx-json='{{ tx|tojson|escape }}'
+            class="{% if tx.is_flagged or tx.flag_reasons %}flagged-row{% endif %}"
+            style="{% if tx.is_flagged or tx.flag_reasons %}background: var(--amber-bg);{% endif %}">
+          
+          <!-- Date -->
+          <td class="font-mono" style="white-space: nowrap; color: var(--text-secondary); font-size: 0.8125rem;">
+            {{ tx.date or "" }}
+          </td>
+
+          <!-- Description / Narration -->
+          <td style="max-width: 360px;">
+            <div style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="{{ tx.description }}">
+              {{ tx.description }}
+            </div>
+          </td>
+
+          <!-- Ref No -->
+          <td class="font-mono" style="font-size: 0.75rem; color: var(--text-muted); white-space: nowrap;">
+            {{ tx.ref_no or "&mdash;" }}
+          </td>
+
+          <!-- Debit -->
+          <td class="text-right tx-amount-dr">
+            {% if tx.debit %}-{{ "%.2f"|format(tx.debit|float) }}{% endif %}
+          </td>
+
+          <!-- Credit -->
+          <td class="text-right tx-amount-cr">
+            {% if tx.credit %}+{{ "%.2f"|format(tx.credit|float) }}{% endif %}
+          </td>
+
+          <!-- Balance -->
+          <td class="text-right tx-balance">
+            {% if tx.balance is not none %}{{ "%.2f"|format(tx.balance|float) }}{% endif %}
+          </td>
+
+          <!-- Inline Category Dropdown -->
+          <td>
+            <select hx-patch="/transaction/{{ session_id }}/{{ tx.row_id }}"
+                    hx-target="#tx-row-{{ tx.row_id }}"
+                    hx-swap="outerHTML"
+                    name="new_category"
+                    class="inline-cat-select"
+                    onclick="event.stopPropagation();">
+              {% for cat in all_categories %}
+                <option value="{{ cat }}" {% if tx.category == cat %}selected{% endif %}>{{ cat }}</option>
+              {% endfor %}
+            </select>
+          </td>
+
+          <!-- Source & Confidence -->
+          <td style="white-space: nowrap;">
+            <span class="badge {% if tx.source == 'rule' %}badge-rule{% elif tx.source == 'ml' %}badge-ml{% elif tx.source == 'manual' %}badge-manual{% else %}badge-ocr{% endif %}">
+              {{ tx.source or "rule" }}
+            </span>
+            {% if tx.confidence %}
+              <span class="font-mono" style="font-size: 0.6875rem; color: var(--text-muted); margin-left: 2px;">
+                {{ (tx.confidence * 100)|round(0)|int }}%
+              </span>
+            {% endif %}
+          </td>
+
+          <!-- Audit Flags -->
+          <td>
+            {% if tx.flag_reasons %}
+              <span class="badge badge-flagged" title="{{ tx.flag_reasons|join(', ') }}">
+                <i data-lucide="alert-triangle" style="width: 10px; height: 10px;"></i>
+                {{ tx.flag_reasons|length }} flag(s)
+              </span>
+            {% else %}
+              <span style="color: var(--text-muted); font-size: 0.75rem;">&check; Verified</span>
+            {% endif %}
+          </td>
+
+          <!-- Drawer trigger icon -->
+          <td class="text-center" style="color: var(--text-muted);">
+            <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+          </td>
+
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="10" style="padding: 3rem; text-align: center; color: var(--text-muted);">
+            <i data-lucide="inbox" style="width: 36px; height: 36px; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+            <div>No transactions match the applied filters.</div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+if (window.lucide) lucide.createIcons();
+</script>

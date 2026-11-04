@@ -1,0 +1,158 @@
+<!-- Quality Score Overview Card -->
+<div class="fintech-card" style="border-left: 6px solid {% if quality.grade in ('A', 'B') %}var(--emerald){% elif quality.grade == 'C' %}var(--amber){% else %}var(--rose){% endif %}; margin-bottom: 1.5rem;">
+  <div style="padding: 1.75rem 2rem; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+    
+    <div style="display: flex; align-items: center; gap: 1.5rem;">
+      <div style="width: 72px; height: 72px; border-radius: var(--radius-lg); background: {% if quality.grade in ('A', 'B') %}var(--emerald-bg){% elif quality.grade == 'C' %}var(--amber-bg){% else %}var(--rose-bg){% endif %}; border: 1px solid {% if quality.grade in ('A', 'B') %}var(--emerald-border){% elif quality.grade == 'C' %}var(--amber-border){% else %}var(--rose-border){% endif %}; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; font-weight: 800; color: {% if quality.grade in ('A', 'B') %}var(--emerald){% elif quality.grade == 'C' %}var(--amber){% else %}var(--rose){% endif %}; font-family: var(--font-mono);">
+        {{ quality.grade }}
+      </div>
+
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <h2 style="font-size: 1.35rem; font-weight: 800; color: var(--text-primary);">
+            Extraction & Ledger Quality Audit
+          </h2>
+          <span class="badge {% if quality.summary_balance_ok %}badge-success{% else %}badge-danger{% endif %}">
+            {% if quality.summary_balance_ok %}MATHEMATICALLY BALANCED{% else %}DISCREPANCY DETECTED{% endif %}
+          </span>
+        </div>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 0.25rem;">
+          Audited {{ quality.rows_extracted }} transaction rows across {{ quality.total_pages }} page(s) with continuous running balance verification.
+        </p>
+      </div>
+    </div>
+
+    <!-- Key Metrics Triplets -->
+    <div style="display: flex; gap: 1.25rem; flex-wrap: wrap;">
+      <div class="meta-field" style="min-width: 130px; text-align: center;">
+        <div class="meta-field-label" style="justify-content: center;">Reconcile Rate</div>
+        <div class="font-mono" style="font-size: 1.35rem; font-weight: 800; color: var(--emerald); margin-top: 0.25rem;">
+          {{ (quality.reconciliation_rate * 100)|round(1) }}%
+        </div>
+      </div>
+
+      <div class="meta-field" style="min-width: 130px; text-align: center;">
+        <div class="meta-field-label" style="justify-content: center;">Flagged Rows</div>
+        <div class="font-mono" style="font-size: 1.35rem; font-weight: 800; color: {% if quality.rows_flagged > 0 %}var(--amber){% else %}var(--emerald){% endif %}; margin-top: 0.25rem;">
+          {{ quality.rows_flagged }}
+        </div>
+      </div>
+
+      <div class="meta-field" style="min-width: 130px; text-align: center;">
+        <div class="meta-field-label" style="justify-content: center;">OCR / Text Ratio</div>
+        <div class="font-mono" style="font-size: 1.35rem; font-weight: 800; color: var(--primary); margin-top: 0.25rem;">
+          {{ quality.ocr_pages }} / {{ quality.total_pages }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Two Column Integrity Detail Grid -->
+<div class="grid-2-col">
+  <!-- Math Equation & Continuity Checks -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div class="card-title">
+        <i data-lucide="scale" style="color: var(--primary); width: 18px; height: 18px;"></i>
+        <span>Ledger Integrity Verification Matrix</span>
+      </div>
+      <span class="badge badge-neutral">Deterministic Rules</span>
+    </div>
+    <div class="card-body" style="padding: 0;">
+      <table class="fintech-table table-comfortable" style="box-shadow: none;">
+        <tbody>
+          <tr>
+            <td>
+              <div style="font-weight: 600;">Summary Balance Formula</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Opening Balance + Sum(Cr) - Sum(Dr) == Closing Balance</div>
+            </td>
+            <td class="text-right">
+              {% if quality.summary_balance_ok %}
+                <span class="badge badge-success"><i data-lucide="check" style="width: 12px; height: 12px;"></i> VALIDATED</span>
+              {% else %}
+                <span class="badge badge-danger"><i data-lucide="x" style="width: 12px; height: 12px;"></i> MISMATCH</span>
+              {% endif %}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight: 600;">Auto-Corrected Transactions</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Resolved swapped debit/credit columns or OCR sign confusion</div>
+            </td>
+            <td class="text-right font-mono" style="font-weight: 700; color: var(--primary);">
+              {{ quality.auto_corrections }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight: 600;">Duplicate Records Identified</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Identical date, description, and amount collisions</div>
+            </td>
+            <td class="text-right font-mono" style="font-weight: 700; color: {% if quality.duplicate_count > 0 %}var(--amber){% else %}var(--text-muted){% endif %};">
+              {{ quality.duplicate_count }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight: 600;">Balance Continuity Breaks / Jumps</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Gaps between consecutive row running balances</div>
+            </td>
+            <td class="text-right font-mono" style="font-weight: 700; color: {% if quality.gap_count > 0 %}var(--rose){% else %}var(--text-muted){% endif %};">
+              {{ quality.gap_count }}
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <div style="font-weight: 600;">Debit + Reversal Offsetting Pairs</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">Failed payments matched with instant refund credits</div>
+            </td>
+            <td class="text-right font-mono" style="font-weight: 700; color: var(--text-secondary);">
+              {{ quality.reversal_pair_count }}
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Audit Observations & Warnings -->
+  <div class="fintech-card">
+    <div class="card-header">
+      <div class="card-title">
+        <i data-lucide="shield-alert" style="color: var(--amber); width: 18px; height: 18px;"></i>
+        <span>Audit Observations & Parsing Notes</span>
+      </div>
+      <span class="badge badge-neutral">Pipeline Flags</span>
+    </div>
+    <div class="card-body">
+      {% if quality.warnings %}
+        <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+          {% for w in quality.warnings %}
+            <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.75rem 1rem; background: var(--bg-surface-alt); border-radius: var(--radius-md); border: 1px solid var(--border-subtle); font-size: 0.8125rem;">
+              <i data-lucide="info" style="width: 16px; height: 16px; color: var(--amber); flex-shrink: 0; margin-top: 2px;"></i>
+              <span style="color: var(--text-secondary);">{{ w }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div style="padding: 2.5rem 1rem; text-align: center;">
+          <div style="width: 48px; height: 48px; border-radius: var(--radius-full); background: var(--emerald-bg); color: var(--emerald); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 0.75rem;">
+            <i data-lucide="check" style="width: 24px; height: 24px;"></i>
+          </div>
+          <h4 style="font-size: 1rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.25rem;">
+            Zero Discrepancies Found
+          </h4>
+          <p style="font-size: 0.8125rem; color: var(--text-secondary); max-width: 340px; margin: 0 auto;">
+            All transaction ledger calculations passed strict debit/credit mathematical integrity tests.
+          </p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+if (window.lucide) lucide.createIcons();
+</script>

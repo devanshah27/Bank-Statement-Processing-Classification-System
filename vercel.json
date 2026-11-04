@@ -1,0 +1,18 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 300
+    }
+  },
+  "rewrites": [
+    { "source": "/static/(.*)", "destination": "/public/$1" },
+    { "source": "/(.*)", "destination": "/api/index.py" }
+  ],
+  "env": {
+    "OCR_ENGINE": "rapid",
+    "DEPLOY_TARGET": "vercel",
+    "LOG_LEVEL": "INFO"
+  }
+}
+

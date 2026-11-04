@@ -1,0 +1,120 @@
+categories:
+  - id: "salary_income"
+    display_name: "Salary/Income"
+    description: "Regular salary, payroll, freelance income, and other earnings"
+    color: "#22c55e"
+
+  - id: "rent"
+    display_name: "Rent"
+    description: "Rent payments for residential or commercial premises"
+    color: "#f97316"
+
+  - id: "groceries"
+    display_name: "Groceries"
+    description: "Grocery stores, supermarkets, and daily essentials"
+    color: "#84cc16"
+
+  - id: "food_dining"
+    display_name: "Food & Dining"
+    description: "Restaurants, food delivery, cafes, and eateries"
+    color: "#fb923c"
+
+  - id: "shopping_ecommerce"
+    display_name: "Shopping/E-commerce"
+    description: "Online shopping, retail stores, fashion, and electronics"
+    color: "#a855f7"
+
+  - id: "utilities"
+    display_name: "Utilities"
+    description: "Electricity, water, gas, and other utility bills"
+    color: "#06b6d4"
+
+  - id: "mobile_internet_dth"
+    display_name: "Mobile/Internet/DTH"
+    description: "Mobile recharges, broadband bills, and DTH subscriptions"
+    color: "#3b82f6"
+
+  - id: "transport_fuel_travel"
+    display_name: "Transport/Fuel/Travel"
+    description: "Cab rides, fuel, flights, trains, and travel bookings"
+    color: "#f59e0b"
+
+  - id: "entertainment_subscriptions"
+    display_name: "Entertainment/Subscriptions"
+    description: "OTT platforms, streaming services, movies, and events"
+    color: "#ec4899"
+
+  - id: "healthcare_pharmacy"
+    display_name: "Healthcare/Pharmacy"
+    description: "Hospitals, clinics, pharmacies, and medical expenses"
+    color: "#ef4444"
+
+  - id: "education"
+    display_name: "Education"
+    description: "School fees, coaching, online courses, and books"
+    color: "#0ea5e9"
+
+  - id: "insurance"
+    display_name: "Insurance"
+    description: "Life, health, vehicle, and other insurance premiums"
+    color: "#6366f1"
+
+  - id: "investments"
+    display_name: "Investments"
+    description: "Mutual funds, stocks, SIP, bonds, and other investments"
+    color: "#10b981"
+
+  - id: "loan_emi"
+    display_name: "Loan/EMI"
+    description: "Home loan, personal loan, vehicle loan EMI payments"
+    color: "#dc2626"
+
+  - id: "credit_card_payment"
+    display_name: "Credit Card Payment"
+    description: "Credit card bill payments and outstanding dues"
+    color: "#7c3aed"
+
+  - id: "taxes"
+    display_name: "Taxes"
+    description: "Income tax, GST, property tax, and other tax payments"
+    color: "#78716c"
+
+  - id: "bank_charges_fees"
+    display_name: "Bank Charges/Fees"
+    description: "Service charges, processing fees, SMS alerts, and bank fees"
+    color: "#6b7280"
+
+  - id: "interest_earned"
+    display_name: "Interest Earned"
+    description: "Interest credited on savings, FD, RD, and other deposits"
+    color: "#16a34a"
+
+  - id: "atm_cash_withdrawal"
+    display_name: "ATM/Cash Withdrawal"
+    description: "Cash withdrawals from ATMs and bank branches"
+    color: "#b45309"
+
+  - id: "cash_deposit"
+    display_name: "Cash Deposit"
+    description: "Cash deposits at ATMs, branches, and cash deposit machines"
+    color: "#15803d"
+
+  - id: "transfers"
+    display_name: "Transfers"
+    description: "NEFT, RTGS, IMPS, UPI transfers between accounts"
+    color: "#2563eb"
+
+  - id: "refunds_reversals"
+    display_name: "Refunds/Reversals"
+    description: "Refunds from merchants, failed transaction reversals"
+    color: "#0891b2"
+
+  - id: "cheque"
+    display_name: "Cheque"
+    description: "Cheque-based payments and receipts"
+    color: "#92400e"
+
+  - id: "other_uncategorized"
+    display_name: "Other/Uncategorized"
+    description: "Transactions that do not fit any specific category"
+    color: "#9ca3af"

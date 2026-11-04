@@ -1,0 +1,33 @@
+{
+  "version": "v1.1.0-merged-dataset",
+  "created_at": "2026-11-04T21:54:07.411349",
+  "model_type": "lr",
+  "n_samples": 12728,
+  "n_classes": 23,
+  "classes": [
+    "ATM/Cash Withdrawal",
+    "Bank Charges/Fees",
+    "Cash Deposit",
+    "Cheque",
+    "Credit Card Payment",
+    "Education",
+    "Entertainment/Subscriptions",
+    "Food & Dining",
+    "Groceries",
+    "Healthcare/Pharmacy",
+    "Insurance",
+    "Interest Earned",
+    "Investments",
+    "Loan/EMI",
+    "Mobile/Internet/DTH",
+    "Refunds/Reversals",
+    "Rent",
+    "Salary/Income",
+    "Shopping/E-commerce",
+    "Taxes",
+    "Transfers",
+    "Transport/Fuel/Travel",
+    "Utilities"
+  ],
+  "train_macro_f1": 0.9992477871590163
+}

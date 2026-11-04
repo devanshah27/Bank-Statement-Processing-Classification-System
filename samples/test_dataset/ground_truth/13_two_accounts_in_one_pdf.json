@@ -1,0 +1,33 @@
+{
+  "account": {
+    "bank_name": "Sample National Bank",
+    "holder": "MEERA DESAI",
+    "acc_no": "709319144988",
+    "ifsc": "SNBX0426814",
+    "micr": "609866204",
+    "branch": "Ahmedabad Navrangpura",
+    "cust_id": "302951446",
+    "acc_type": "Savings Account",
+    "address": "5, Sample Residency, Ahmedabad - 392389"
+  },
+  "period_from": "2026-04-01",
+  "period_to": "2026-06-30",
+  "opening_balance": "30000.00",
+  "closing_balance": "36061.60",
+  "row_count": 128,
+  "second_account": {
+    "bank_name": "Test Union Bank",
+    "holder": "MEERA DESAI",
+    "acc_no": "537120964173",
+    "ifsc": "TUBK0356056",
+    "micr": "929776571",
+    "branch": "Mumbai Andheri East",
+    "cust_id": "789480955",
+    "acc_type": "Current Account",
+    "address": "15, Sample Residency, Mumbai - 401635"
+  },
+  "second_account_opening": "120000.00",
+  "second_account_closing": "1519.34",
+  "rows_account_1": 81,
+  "rows_account_2": 47
+}

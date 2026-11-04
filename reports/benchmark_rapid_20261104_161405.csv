@@ -1,0 +1,22 @@
+﻿category,filename,status,duration_sec,gt_rows,extracted_rows,exact_matches,exact_match_pct,desc_match_pct,account_match_pct,notes
+text_based,01_text_bordered_debit_credit_carry_forward.pdf,SUCCESS,1.2678947448730469,103,103,103,100.0,68.93203883495146,33.33333333333333,Grade: A | Recon: 100.0%
+text_based,02_text_borderless_amount_with_Dr_Cr_suffix.pdf,SUCCESS,2.013824701309204,97,100,1,1.0309278350515463,0.0,33.33333333333333,Grade: D | Recon: 57.0%
+text_based,03_text_multiline_narration_withdrawal_deposit.pdf,SUCCESS,2.784679889678955,78,78,0,0.0,0.0,33.33333333333333,Grade: D | Recon: 60.3%
+text_based,04_text_monospace_whitespace_aligned_signed_amounts.pdf,SUCCESS,1.318190097808838,96,105,0,0.0,0.0,33.33333333333333,Grade: D | Recon: 66.7%
+text_based,05_text_landscape_passbook_style_zero_filled.pdf,SUCCESS,1.5239908695220947,91,91,91,100.0,100.0,33.33333333333333,Grade: A | Recon: 100.0%
+text_based,06_text_bracket_negatives_western_number_format.pdf,SUCCESS,1.815459966659546,82,86,0,0.0,21.951219512195124,16.666666666666664,Grade: A | Recon: 98.8%
+scanned_image_based,07_scanned_clean_200dpi.pdf,SUCCESS,304.10218930244446,85,109,51,60.0,0.0,0.0,Grade: D | Recon: 69.7%
+scanned_image_based,08_scanned_skewed_noisy_low_contrast.pdf,SUCCESS,166.61731791496277,85,80,1,1.1764705882352942,0.0,0.0,Grade: C | Recon: 70.0%
+scanned_image_based,09_scanned_phone_photo_shadow_perspective.pdf,SUCCESS,102.16155052185059,52,58,0,0.0,0.0,0.0,Grade: C | Recon: 81.0%
+scanned_image_based,10_scanned_fax_black_white_low_res.pdf,SUCCESS,117.69780397415161,48,65,0,0.0,0.0,0.0,Grade: C | Recon: 84.6%
+scanned_image_based,11_scanned_rotated_90_degrees.pdf,SUCCESS,20.11324167251587,49,40,0,0.0,0.0,0.0,Grade: B | Recon: 95.0%
+mixed_and_multi,12_mixed_text_pages_and_scanned_pages.pdf,SUCCESS,22.970927476882935,138,137,109,78.98550724637681,13.768115942028986,33.33333333333333,Grade: B | Recon: 95.6%
+mixed_and_multi,13_two_accounts_in_one_pdf.pdf,SUCCESS,1.5061917304992676,128,87,81,63.28125,48.4375,33.33333333333333,Grade: B | Recon: 98.9%
+mixed_and_multi,14_large_statement_100plus_pages.pdf,SUCCESS,97.20171880722046,7700,7700,7700,100.0,31.662337662337663,33.33333333333333,Grade: A | Recon: 100.0%
+edge_cases,15_edge_cases_balance_breaks_duplicates_reversals.pdf,SUCCESS,0.9702372550964355,94,94,93,98.93617021276596,62.76595744680851,33.33333333333333,Grade: B | Recon: 97.9%
+edge_cases,16_password_protected_password_is_test1234.pdf,SUCCESS,1.0067367553710938,103,103,103,100.0,68.93203883495146,33.33333333333333,Grade: A | Recon: 100.0%
+edge_cases,17_corrupted_truncated_file.pdf,REJECTED_CLEANLY,0.0046460628509521484,0,0,0,100.0,0.0,0.0,Code: CORRUPT_PDF (PDF file is truncated or corrupted: Unexpected EOF)
+edge_cases,18_not_really_a_pdf_png_renamed.pdf,REJECTED_CLEANLY,0.0010268688201904297,0,0,0,100.0,0.0,0.0,"Code: EXTENSION_MIME_MISMATCH (File extension '.pdf' suggests application/pdf, but the file content was detected as image/png. Please upload the correct file.)"
+edge_cases,19_blank_empty_page.pdf,SUCCESS,2.488537549972534,0,0,0,0.0,0.0,100.0,Grade: B | Recon: 100.0%
+other_document_types,20_credit_card_statement_no_balance_column.pdf,REJECTED_CLEANLY,0.009867668151855469,51,0,0,0.0,0.0,0.0,Code: NOT_A_BANK_STATEMENT (Document rejected: identified as a credit card statement. Reasons: Document detected as a credit card statement (no running balance ledger).; Matched credit card features: 3 patterns.)
+other_document_types,21_non_statement_invoice_should_be_rejected.pdf,REJECTED_CLEANLY,0.0037000179290771484,0,0,0,100.0,0.0,0.0,Code: NOT_A_BANK_STATEMENT (Document rejected: identified as a invoice. Reasons: Document detected as an invoice/bill.; Matched invoice features: 3 patterns.)

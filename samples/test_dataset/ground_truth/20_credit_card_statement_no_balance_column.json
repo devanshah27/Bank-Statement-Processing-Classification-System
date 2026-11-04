@@ -1,0 +1,19 @@
+{
+  "account": {
+    "bank_name": "Test Union Bank",
+    "holder": "SNEHA IYER",
+    "acc_no": "4012 XXXX XXXX 9087",
+    "ifsc": "TUBK0252625",
+    "micr": "786424413",
+    "branch": "Mumbai Andheri East",
+    "cust_id": "966284763",
+    "acc_type": "Savings Account",
+    "address": "42, Sample Residency, Mumbai - 391025"
+  },
+  "period_from": "2026-07-01",
+  "period_to": "2026-09-30",
+  "opening_balance": "0",
+  "closing_balance": "20813.69",
+  "row_count": 51,
+  "note": "Not a bank account statement: no running balance column. Tests doc-type handling / graceful degradation."
+}

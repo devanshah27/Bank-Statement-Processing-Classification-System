@@ -1,0 +1,38 @@
+name: axis
+display_name: "Axis Bank"
+ifsc_prefix:
+  - "UTIB"
+  - "UTIB0"
+header_keywords:
+  - "Axis Bank"
+  - "AXIS BANK"
+  - "AXIS BANK LIMITED"
+date_formats:
+  - "%d-%m-%Y"
+  - "%d/%m/%Y"
+  - "%d %b %Y"
+amount_format: indian
+decimal_separator: "."
+debit_credit_style: separate
+column_order_hint:
+  - date
+  - description
+  - ref_no
+  - debit
+  - credit
+  - balance
+multiline_narration: true
+value_date_present: false
+ref_no_present: true
+skip_rows_containing:
+  - "BROUGHT FORWARD"
+  - "CARRIED FORWARD"
+  - "OPENING BALANCE"
+  - "CLOSING BALANCE"
+  - "TOTAL"
+  - "SUB-TOTAL"
+  - "PAGE TOTAL"
+  - "Statement of Account"
+extra_patterns:
+  txn_id: "(?:NEFT|IMPS|UPI|RTGS)[/\\-]?([A-Z0-9]+)"
+  upi_ref: "UPI[/-]([A-Z0-9]+)"

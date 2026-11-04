@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Sample National Bank",
+    "holder": "POOJA REDDY",
+    "acc_no": "737154612991",
+    "ifsc": "SNBX0829133",
+    "micr": "216423325",
+    "branch": "Ahmedabad Navrangpura",
+    "cust_id": "102130294",
+    "acc_type": "Savings Account",
+    "address": "40, Sample Residency, Ahmedabad - 397172"
+  },
+  "period_from": "2026-02-01",
+  "period_to": "2026-04-30",
+  "opening_balance": "15800.00",
+  "closing_balance": "1046.92",
+  "row_count": 91
+}

@@ -1,0 +1,26 @@
+{
+  "account": {
+    "bank_name": "Sample National Bank",
+    "holder": "ANJALI SHAH",
+    "acc_no": "408481034938",
+    "ifsc": "SNBX0833297",
+    "micr": "712452995",
+    "branch": "Ahmedabad Navrangpura",
+    "cust_id": "952396087",
+    "acc_type": "Savings Account",
+    "address": "51, Sample Residency, Ahmedabad - 395795"
+  },
+  "period_from": "2026-04-01",
+  "period_to": "2026-06-30",
+  "opening_balance": "40000.00",
+  "closing_balance": "59140.54",
+  "row_count": 94,
+  "missing_row_not_printed": {
+    "date": "2026-05-13",
+    "description": "CASH DEPOSIT/VADODARA BR",
+    "debit": "",
+    "credit": "15500.00",
+    "balance_after": "126176.36"
+  },
+  "note": "Summary totals/closing balance on the PDF are the TRUE values; printed rows do not reconcile because of the injected defects."
+}

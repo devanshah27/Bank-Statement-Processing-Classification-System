@@ -1,0 +1,22 @@
+samples/
+bank_statement_test_dataset/
+TESTING DATA/
+tests/
+training/
+reports/
+docs/
+*.md
+Dockerfile
+Makefile
+requirements-dev.txt
+requirements-train.txt
+htmlcov/
+.pytest_cache/
+__pycache__/
+*.pyc
+.git/
+data/
+debug_*.py
+test_*.py
+benchmark_*.py
+

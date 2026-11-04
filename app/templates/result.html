@@ -1,0 +1,474 @@
+{% extends "base.html" %}
+
+{% block title %}{{ account.bank_name or "Bank Statement" }} &bull; Statement Dashboard{% endblock %}
+
+{% block content %}
+
+<!-- Jinja2 Ledger Calculations -->
+{% set total_credits = namespace(val=0.0) %}
+{% set total_debits = namespace(val=0.0) %}
+{% set flagged_count = namespace(val=0) %}
+{% set max_debit = namespace(val=0.0, desc="") %}
+
+{% for tx in transactions %}
+  {% if tx.credit %}
+    {% set total_credits.val = total_credits.val + (tx.credit|float) %}
+  {% endif %}
+  {% if tx.debit %}
+    {% set d_val = tx.debit|float %}
+    {% set total_debits.val = total_debits.val + d_val %}
+    {% if d_val > max_debit.val %}
+      {% set max_debit.val = d_val %}
+      {% set max_debit.desc = tx.description %}
+    {% endif %}
+  {% endif %}
+  {% if tx.is_flagged or tx.flag_reasons %}
+    {% set flagged_count.val = flagged_count.val + 1 %}
+  {% endif %}
+{% endfor %}
+{% set net_flow = total_credits.val - total_debits.val %}
+
+<!-- Statement Header Bar -->
+<div class="fintech-card" style="padding: 1.5rem 2rem; margin-bottom: 1.5rem;">
+  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.25rem;">
+    
+    <!-- Bank & Holder Identity -->
+    <div style="display: flex; align-items: center; gap: 1.25rem;">
+      <div class="bank-avatar">
+        {{ (account.bank_name or "BK")[:2]|upper }}
+      </div>
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <h1 style="font-size: 1.5rem; font-weight: 800; color: var(--text-primary); letter-spacing: -0.02em;">
+            {{ account.bank_name or "Bank Statement" }}
+          </h1>
+
+          <span id="recon-badge" class="badge {% if quality.summary_balance_ok and quality.reconciliation_rate >= 0.95 %}badge-success{% elif quality.reconciliation_rate >= 0.80 %}badge-ocr{% else %}badge-danger{% endif %}" style="padding: 4px 10px; font-size: 0.75rem;">
+            <i data-lucide="{% if quality.summary_balance_ok %}check-circle-2{% else %}alert-circle{% endif %}" style="width: 13px; height: 13px;"></i>
+            {% if quality.summary_balance_ok and quality.reconciliation_rate >= 0.95 %}
+              Reconciled ({{ (quality.reconciliation_rate * 100)|round(1) }}%)
+            {% else %}
+              Audit Review ({{ (quality.reconciliation_rate * 100)|round(1) }}%)
+            {% endif %}
+          </span>
+        </div>
+
+        <div style="font-size: 0.84375rem; color: var(--text-secondary); margin-top: 0.35rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+          <span>Holder: <strong style="color: var(--text-primary);">{{ account.account_holder_name or account.holder or "Primary Account" }}</strong></span>
+          <span style="color: var(--border-strong);">&bull;</span>
+          <span>A/C: <strong class="font-mono">{{ account.account_number_masked or account.account_number or "N/A" }}</strong></span>
+          <span style="color: var(--border-strong);">&bull;</span>
+          <span>Period: <strong class="font-mono">{{ account.period_from or "N/A" }}</strong> to <strong class="font-mono">{{ account.period_to or "N/A" }}</strong></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Export Actions -->
+    <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+      <a href="/export/{{ session_id }}/xlsx" class="btn btn-primary btn-sm">
+        <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
+        <span>Export Excel</span>
+      </a>
+      <a href="/export/{{ session_id }}/csv" class="btn btn-secondary btn-sm">
+        <i data-lucide="download" style="width: 15px; height: 15px;"></i>
+        <span>Export CSV</span>
+      </a>
+      <a href="/" class="btn btn-secondary btn-sm" title="Upload another PDF">
+        <i data-lucide="upload" style="width: 15px; height: 15px;"></i>
+        <span>Upload Another</span>
+      </a>
+    </div>
+
+  </div>
+</div>
+
+<!-- Segmented Navigation Tabs -->
+<div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.5rem; overflow-x: auto;">
+  <button id="tab-btn-overview"
+          class="btn btn-secondary btn-sm active"
+          onclick="showResultView('overview', this)"
+          style="border-radius: var(--radius-md);">
+    <i data-lucide="layout-dashboard" style="width: 15px; height: 15px;"></i>
+    <span>Overview</span>
+  </button>
+
+  <button id="tab-btn-transactions"
+          class="btn btn-secondary btn-sm"
+          hx-get="/result/{{ session_id }}/transactions"
+          hx-target="#tab-content"
+          onclick="showResultView('transactions', this)"
+          style="border-radius: var(--radius-md);">
+    <i data-lucide="receipt" style="width: 15px; height: 15px;"></i>
+    <span>Transactions ({{ transactions|length }})</span>
+  </button>
+
+  <button id="tab-btn-analytics"
+          class="btn btn-secondary btn-sm"
+          hx-get="/result/{{ session_id }}/analytics"
+          hx-target="#tab-content"
+          onclick="showResultView('analytics', this)"
+          style="border-radius: var(--radius-md);">
+    <i data-lucide="pie-chart" style="width: 15px; height: 15px;"></i>
+    <span>Analytics & Trends</span>
+  </button>
+
+  <button id="tab-btn-account"
+          class="btn btn-secondary btn-sm"
+          hx-get="/result/{{ session_id }}/account"
+          hx-target="#tab-content"
+          onclick="showResultView('account', this)"
+          style="border-radius: var(--radius-md);">
+    <i data-lucide="user-check" style="width: 15px; height: 15px;"></i>
+    <span>Account Details</span>
+  </button>
+
+  <button id="tab-btn-quality"
+          class="btn btn-secondary btn-sm"
+          hx-get="/result/{{ session_id }}/quality"
+          hx-target="#tab-content"
+          onclick="showResultView('quality', this)"
+          style="border-radius: var(--radius-md);">
+    <i data-lucide="check-circle-2" style="width: 15px; height: 15px;"></i>
+    <span>Quality Audit (Grade {{ quality.grade }})</span>
+  </button>
+
+  <button id="tab-btn-export"
+          class="btn btn-secondary btn-sm"
+          hx-get="/result/{{ session_id }}/export"
+          hx-target="#tab-content"
+          onclick="showResultView('export', this)"
+          style="border-radius: var(--radius-md);">
+    <i data-lucide="file-spreadsheet" style="width: 15px; height: 15px;"></i>
+    <span>Export & Share</span>
+  </button>
+</div>
+
+<!-- 1. OVERVIEW DASHBOARD VIEW (Default) -->
+<div id="overview-content">
+  
+  <!-- 5 KPI Metric Cards -->
+  <div class="grid-5-kpi">
+    
+    <!-- Total Inflow / Credits -->
+    <div class="fintech-card kpi-card kpi-income">
+      <div class="kpi-top">
+        <span class="kpi-label">Total Inflow</span>
+        <div class="kpi-icon-pill">
+          <i data-lucide="arrow-down-left"></i>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <div class="kpi-value income-val">
+          +₹{{ "%.2f"|format(total_credits.val) }}
+        </div>
+      </div>
+      <div class="kpi-sparkline">
+        <svg viewBox="0 0 100 24" preserveAspectRatio="none">
+          <path d="M0,20 Q20,16 40,12 T80,8 T100,2" fill="none" stroke="var(--emerald)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Total Outflow / Debits -->
+    <div class="fintech-card kpi-card kpi-expense">
+      <div class="kpi-top">
+        <span class="kpi-label">Total Outflow</span>
+        <div class="kpi-icon-pill">
+          <i data-lucide="arrow-up-right"></i>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <div class="kpi-value expense-val">
+          -₹{{ "%.2f"|format(total_debits.val) }}
+        </div>
+      </div>
+      <div class="kpi-sparkline">
+        <svg viewBox="0 0 100 24" preserveAspectRatio="none">
+          <path d="M0,6 Q25,10 50,15 T75,18 T100,22" fill="none" stroke="var(--rose)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Net Cash Flow -->
+    <div class="fintech-card kpi-card kpi-net">
+      <div class="kpi-top">
+        <span class="kpi-label">Net Cash Flow</span>
+        <div class="kpi-icon-pill">
+          <i data-lucide="activity"></i>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <div class="kpi-value font-mono" style="color: {% if net_flow >= 0 %}var(--emerald){% else %}var(--rose){% endif %};">
+          {% if net_flow >= 0 %}+{% endif %}₹{{ "%.2f"|format(net_flow) }}
+        </div>
+      </div>
+      <div class="kpi-sparkline">
+        <svg viewBox="0 0 100 24" preserveAspectRatio="none">
+          <path d="M0,12 Q30,6 60,16 T100,10" fill="none" stroke="var(--primary)" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Total Transactions Count -->
+    <div class="fintech-card kpi-card kpi-txns">
+      <div class="kpi-top">
+        <span class="kpi-label">Ledger Volume</span>
+        <div class="kpi-icon-pill">
+          <i data-lucide="layers"></i>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <div class="kpi-value">
+          {{ transactions|length }} <span style="font-size: 0.875rem; color: var(--text-muted); font-weight: 500;">txns</span>
+        </div>
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+        Across {{ quality.total_pages }} statement page(s)
+      </div>
+    </div>
+
+    <!-- Ledger Reconciliation Status -->
+    <div class="fintech-card kpi-card kpi-recon">
+      <div class="kpi-top">
+        <span class="kpi-label">Reconciliation</span>
+        <div class="kpi-icon-pill">
+          <i data-lucide="shield-check"></i>
+        </div>
+      </div>
+      <div class="kpi-value-row">
+        <div class="kpi-value font-mono" style="color: {% if quality.summary_balance_ok %}var(--emerald){% else %}var(--amber){% endif %};">
+          {{ (quality.reconciliation_rate * 100)|round(1) }}%
+        </div>
+      </div>
+      <div style="font-size: 0.75rem; color: var(--text-secondary); margin-top: 0.5rem;">
+        Grade {{ quality.grade }} &bull; {% if quality.summary_balance_ok %}Math Verified{% else %}Needs Review{% endif %}
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Account Credentials Card with Eye Mask Toggle -->
+  <div class="fintech-card" style="padding: 1.5rem; margin-bottom: 1.5rem;">
+    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; border-bottom: 1px solid var(--border-subtle); padding-bottom: 0.75rem;">
+      <div class="card-title">
+        <i data-lucide="credit-card" style="color: var(--primary); width: 18px; height: 18px;"></i>
+        <span>Account Master Record & Routing</span>
+      </div>
+      <button type="button" class="mask-toggle-btn" onclick="toggleAccountMask(this)">
+        <i data-lucide="eye" style="width: 14px; height: 14px;"></i>
+        <span>Show Full Account</span>
+      </button>
+    </div>
+
+    <div class="grid-4-col">
+      <div class="meta-field">
+        <div class="meta-field-label">Account Number</div>
+        <div id="account-number-display"
+             class="meta-field-value font-mono"
+             data-masked="true"
+             data-raw="{{ account.account_number or 'N/A' }}"
+             data-mask-str="{{ account.account_number_masked or '**** **** ****' }}">
+          {{ account.account_number_masked or account.account_number or "N/A" }}
+        </div>
+      </div>
+
+      <div class="meta-field">
+        <div class="meta-field-label">IFSC Code</div>
+        <div class="meta-field-value font-mono" style="color: var(--cyan);">
+          {{ account.ifsc or "N/A" }}
+        </div>
+      </div>
+
+      <div class="meta-field">
+        <div class="meta-field-label">Opening Balance</div>
+        <div class="meta-field-value font-mono" style="color: var(--primary);">
+          {% if account.opening_balance is not none %}₹{{ "%.2f"|format(account.opening_balance|float) }}{% else %}N/A{% endif %}
+        </div>
+      </div>
+
+      <div class="meta-field">
+        <div class="meta-field-label">Closing Balance</div>
+        <div class="meta-field-value font-mono" style="color: var(--emerald);">
+          {% if account.closing_balance is not none %}₹{{ "%.2f"|format(account.closing_balance|float) }}{% else %}N/A{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Financial Insights Highlights -->
+  <div class="grid-3-col">
+    <!-- Top Merchant / Payee -->
+    <div class="fintech-card" style="padding: 1.25rem 1.5rem;">
+      <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 4px;">
+        <i data-lucide="store" style="width: 14px; height: 14px; color: var(--primary);"></i>
+        <span>Primary Expense Driver</span>
+      </div>
+      <div style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+        {{ max_debit.desc[:28] or "No debits recorded" }}
+      </div>
+      <div style="font-size: 0.8125rem; color: var(--rose); font-family: var(--font-mono); font-weight: 600; margin-top: 0.25rem;">
+        Largest debit: -₹{{ "%.2f"|format(max_debit.val) }}
+      </div>
+    </div>
+
+    <!-- Extraction Integrity -->
+    <div class="fintech-card" style="padding: 1.25rem 1.5rem;">
+      <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 4px;">
+        <i data-lucide="check-check" style="width: 14px; height: 14px; color: var(--emerald);"></i>
+        <span>Ledger Math Integrity</span>
+      </div>
+      <div style="font-size: 1.125rem; font-weight: 700; color: {% if quality.summary_balance_ok %}var(--emerald){% else %}var(--amber){% endif %};">
+        {% if quality.summary_balance_ok %}100% Continuity Verified{% else %}Continuity Discrepancy{% endif %}
+      </div>
+      <div style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 0.25rem;">
+        {{ quality.auto_corrections }} auto-corrected columns &bull; {{ flagged_count.val }} flagged
+      </div>
+    </div>
+
+    <!-- Machine Learning Classifier -->
+    <div class="fintech-card" style="padding: 1.25rem 1.5rem;">
+      <div style="font-size: 0.75rem; text-transform: uppercase; color: var(--text-muted); font-weight: 700; letter-spacing: 0.05em; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 4px;">
+        <i data-lucide="cpu" style="width: 14px; height: 14px; color: var(--cyan);"></i>
+        <span>ML Classification Engine</span>
+      </div>
+      <div style="font-size: 1.125rem; font-weight: 700; color: var(--text-primary);">
+        98.71% Benchmark Accuracy
+      </div>
+      <div style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.25rem;">
+        Scikit-Learn TF-IDF + Heuristic Rules (Zero LLM)
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Transactions Preview Table -->
+  <div class="fintech-card" style="margin-top: 1.5rem;">
+    <div class="card-header">
+      <div class="card-title">
+        <i data-lucide="clock" style="color: var(--primary); width: 18px; height: 18px;"></i>
+        <span>Recent Transactions Ledger (Preview)</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="document.getElementById('tab-btn-transactions').click()">
+        <span>View All {{ transactions|length }} Records</span>
+        <i data-lucide="arrow-right" style="width: 14px; height: 14px;"></i>
+      </button>
+    </div>
+
+    <div class="fintech-table-container">
+      <table class="fintech-table table-comfortable">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Description</th>
+            <th>Ref No</th>
+            <th class="text-right">Debit</th>
+            <th class="text-right">Credit</th>
+            <th class="text-right">Balance</th>
+            <th>Category</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for tx in transactions[:8] %}
+          <tr data-tx-json='{{ tx|tojson|escape }}'>
+            <td class="font-mono" style="font-size: 0.8125rem; color: var(--text-secondary); white-space: nowrap;">
+              {{ tx.date or "" }}
+            </td>
+            <td style="max-width: 380px;">
+              <div style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                {{ tx.description }}
+              </div>
+            </td>
+            <td class="font-mono" style="font-size: 0.75rem; color: var(--text-muted);">
+              {{ tx.ref_no or "&mdash;" }}
+            </td>
+            <td class="text-right tx-amount-dr">
+              {% if tx.debit %}-{{ "%.2f"|format(tx.debit|float) }}{% endif %}
+            </td>
+            <td class="text-right tx-amount-cr">
+              {% if tx.credit %}+{{ "%.2f"|format(tx.credit|float) }}{% endif %}
+            </td>
+            <td class="text-right tx-balance">
+              {% if tx.balance is not none %}{{ "%.2f"|format(tx.balance|float) }}{% endif %}
+            </td>
+            <td>
+              <span class="category-chip">{{ tx.category }}</span>
+            </td>
+            <td>
+              <span class="badge {% if tx.source == 'rule' %}badge-rule{% elif tx.source == 'ml' %}badge-ml{% else %}badge-ocr{% endif %}">
+                {{ tx.source or "rule" }}
+              </span>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<!-- 2. DYNAMIC TAB CONTENT CONTAINER (Used by HTMX for Transactions, Analytics, Account, Quality, Export) -->
+<div id="tab-content" style="display: none;"></div>
+
+<script>
+// Switch between Overview and HTMX dynamic tabs
+function showResultView(viewName, btn) {
+  const overviewEl = document.getElementById("overview-content");
+  const tabContentEl = document.getElementById("tab-content");
+
+  // Update tab button active states
+  document.querySelectorAll("[id^='tab-btn-']").forEach(b => b.classList.remove("active", "btn-primary"));
+  if (btn) {
+    btn.classList.add("active");
+  }
+
+  // Update sidebar active states if matching
+  document.querySelectorAll("[data-nav-view]").forEach(nav => {
+    if (nav.getAttribute("data-nav-view") === viewName) {
+      nav.classList.add("active");
+    } else {
+      nav.classList.remove("active");
+    }
+  });
+
+  // Breadcrumb update
+  const breadcrumbCurrent = document.getElementById("breadcrumb-current-page");
+  if (breadcrumbCurrent) {
+    const titles = {
+      overview: "Overview Dashboard",
+      transactions: "Transaction Ledger",
+      analytics: "Analytics & Trends",
+      account: "Account Details",
+      quality: "Quality Audit",
+      export: "Export Center",
+    };
+    breadcrumbCurrent.textContent = titles[viewName] || viewName.toUpperCase();
+  }
+
+  if (viewName === "overview") {
+    overviewEl.style.display = "block";
+    tabContentEl.style.display = "none";
+  } else {
+    overviewEl.style.display = "none";
+    tabContentEl.style.display = "block";
+  }
+
+  if (window.lucide) lucide.createIcons();
+}
+
+// Connect left sidebar links to this view switcher
+document.querySelectorAll("[data-nav-view]").forEach(link => {
+  link.addEventListener("click", (e) => {
+    const view = link.getAttribute("data-nav-view");
+    if (!view || link.getAttribute("href") === "/") return;
+    e.preventDefault();
+
+    const targetTabBtn = document.getElementById(`tab-btn-${view}`);
+    if (targetTabBtn) {
+      targetTabBtn.click();
+    }
+  });
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Demo Co-operative Bank",
+    "holder": "ISHITA VERMA",
+    "acc_no": "493487574718",
+    "ifsc": "DMOB0177928",
+    "micr": "695299427",
+    "branch": "Pune Camp",
+    "cust_id": "865048511",
+    "acc_type": "Savings Account",
+    "address": "85, Sample Residency, Pune - 399918"
+  },
+  "period_from": "2026-01-01",
+  "period_to": "2026-03-31",
+  "opening_balance": "52210.55",
+  "closing_balance": "60314.10",
+  "row_count": 97
+}

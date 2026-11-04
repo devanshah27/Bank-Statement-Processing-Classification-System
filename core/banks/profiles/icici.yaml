@@ -1,0 +1,41 @@
+name: icici
+display_name: "ICICI Bank"
+ifsc_prefix:
+  - "ICIC"
+  - "ICIC0"
+header_keywords:
+  - "ICICI Bank"
+  - "ICICI BANK"
+  - "ICICI BANK LIMITED"
+date_formats:
+  - "%d/%m/%Y"
+  - "%d-%m-%Y"
+  - "%d %b %Y"
+amount_format: indian
+decimal_separator: "."
+debit_credit_style: separate
+column_order_hint:
+  - date
+  - description
+  - ref_no
+  - value_date
+  - debit
+  - credit
+  - balance
+multiline_narration: true
+value_date_present: true
+ref_no_present: true
+skip_rows_containing:
+  - "BROUGHT FORWARD"
+  - "CARRIED FORWARD"
+  - "OPENING BALANCE"
+  - "CLOSING BALANCE"
+  - "TOTAL"
+  - "SUB-TOTAL"
+  - "PAGE TOTAL"
+  - "Account Statement"
+  - "ICICI Bank Limited"
+extra_patterns:
+  txn_id: "(?:NEFT|IMPS|UPI|RTGS)[/\\-]?([A-Z0-9]+)"
+  upi_ref: "UPI[/-]([A-Z0-9]+)"
+  cheque_ref: "CHQ\\s*(\\d+)"

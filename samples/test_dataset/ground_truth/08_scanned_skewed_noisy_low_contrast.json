@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Demo Co-operative Bank",
+    "holder": "DIVYA GUPTA",
+    "acc_no": "618165387770",
+    "ifsc": "DMOB0429326",
+    "micr": "312694768",
+    "branch": "Pune Camp",
+    "cust_id": "310427749",
+    "acc_type": "Savings Account",
+    "address": "87, Sample Residency, Pune - 393042"
+  },
+  "period_from": "2026-01-01",
+  "period_to": "2026-03-31",
+  "opening_balance": "28750.00",
+  "closing_balance": "123751.11",
+  "row_count": 85
+}

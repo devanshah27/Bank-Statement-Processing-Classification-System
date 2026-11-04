@@ -1,0 +1,441 @@
+# Merchant dictionary — ~100 canonical merchants with regex-friendly aliases and category.
+# Aliases are matched case-insensitively against normalised transaction descriptions.
+
+merchants:
+  # ── Food Delivery ──────────────────────────────────────────────────────────
+  - name: "Swiggy"
+    aliases: ["swiggy", "bundl tech", "swiggy food", "swiggy instamart"]
+    category: "Food & Dining"
+
+  - name: "Zomato"
+    aliases: ["zomato", "zomato ltd", "zomato media"]
+    category: "Food & Dining"
+
+  - name: "Dunzo"
+    aliases: ["dunzo", "dunzo digital"]
+    category: "Food & Dining"
+
+  # ── Restaurants / QSR ──────────────────────────────────────────────────────
+  - name: "McDonald's"
+    aliases: ["mcdonald", "mcdonalds", "mcd ", "hardcastle restaurants"]
+    category: "Food & Dining"
+
+  - name: "KFC"
+    aliases: ["kfc", "kfc india", "yum restaurants", "devyani international"]
+    category: "Food & Dining"
+
+  - name: "Domino's"
+    aliases: ["dominos", "domino's", "jubilant foodworks", "jubilant food"]
+    category: "Food & Dining"
+
+  - name: "Pizza Hut"
+    aliases: ["pizza hut", "pizzahut", "yum brands pizza"]
+    category: "Food & Dining"
+
+  - name: "Haldiram's"
+    aliases: ["haldiram", "haldirams"]
+    category: "Food & Dining"
+
+  - name: "Starbucks"
+    aliases: ["starbucks", "tata starbucks"]
+    category: "Food & Dining"
+
+  - name: "Cafe Coffee Day"
+    aliases: ["cafe coffee day", "coffee day", "ccd ", "amalgamated bean"]
+    category: "Food & Dining"
+
+  - name: "Subway"
+    aliases: ["subway"]
+    category: "Food & Dining"
+
+  - name: "Burger King"
+    aliases: ["burger king", "burgerking", "restaurant brands"]
+    category: "Food & Dining"
+
+  # ── Groceries / Supermarkets ───────────────────────────────────────────────
+  - name: "BigBasket"
+    aliases: ["bigbasket", "big basket", "supermarket grocery", "innovative retail"]
+    category: "Groceries"
+
+  - name: "Blinkit"
+    aliases: ["blinkit", "grofers", "blinkit technologies"]
+    category: "Groceries"
+
+  - name: "DMart"
+    aliases: ["dmart", "d mart", "avenue supermarts", "avenue supermart"]
+    category: "Groceries"
+
+  - name: "Reliance Fresh"
+    aliases: ["reliance fresh", "reliance smart", "reliance retail", "jiomart", "jio mart"]
+    category: "Groceries"
+
+  - name: "Spencer's"
+    aliases: ["spencers", "spencer's", "rp sanjiv goenka"]
+    category: "Groceries"
+
+  - name: "More Supermarket"
+    aliases: ["more supermarket", "more retail", "more megastore", "more market"]
+    category: "Groceries"
+
+  - name: "Zepto"
+    aliases: ["zepto", "kiranakart technologies"]
+    category: "Groceries"
+
+  # ── E-commerce / Shopping ─────────────────────────────────────────────────
+  - name: "Amazon"
+    aliases: ["amazon", "amazon.in", "amazon seller", "amazon pay", "amazonpay"]
+    category: "Shopping/E-commerce"
+
+  - name: "Flipkart"
+    aliases: ["flipkart", "flipkart internet", "www.flipkart"]
+    category: "Shopping/E-commerce"
+
+  - name: "Myntra"
+    aliases: ["myntra", "myntra designs"]
+    category: "Shopping/E-commerce"
+
+  - name: "Meesho"
+    aliases: ["meesho", "fashnear technologies"]
+    category: "Shopping/E-commerce"
+
+  - name: "Ajio"
+    aliases: ["ajio", "reliance ajio"]
+    category: "Shopping/E-commerce"
+
+  - name: "Nykaa"
+    aliases: ["nykaa", "fsg nykaa", "fsg retail", "fsn ecommerce"]
+    category: "Shopping/E-commerce"
+
+  - name: "Snapdeal"
+    aliases: ["snapdeal", "jasper infotech"]
+    category: "Shopping/E-commerce"
+
+  - name: "Tata CLiQ"
+    aliases: ["tatacliq", "tata cliq", "tata unistore"]
+    category: "Shopping/E-commerce"
+
+  - name: "Croma"
+    aliases: ["croma", "infiniti retail"]
+    category: "Shopping/E-commerce"
+
+  - name: "Vijay Sales"
+    aliases: ["vijay sales"]
+    category: "Shopping/E-commerce"
+
+  # ── Transport / Travel ────────────────────────────────────────────────────
+  - name: "Uber"
+    aliases: ["uber", "uber india", "uber bv"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "Ola"
+    aliases: ["ola cabs", "olacabs", "ani technologies", "ola money"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "Rapido"
+    aliases: ["rapido", "roppen transportation"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "Yulu"
+    aliases: ["yulu", "yulu bikes"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "IRCTC"
+    aliases: ["irctc", "indian railway", "ir ctc", "i r c t c", "indianrailways"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "MakeMyTrip"
+    aliases: ["makemytrip", "make my trip", "mmt travel", "makemytrip.com"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "Indian Oil"
+    aliases: ["indian oil", "iocl", "indian oil petrol", "ioc pump", "iocpump"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "HP Petrol"
+    aliases: ["hp petrol", "hp petrol pump", "hpcl", "hppump"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "Bharat Petroleum"
+    aliases: ["bharat petroleum", "bpcl", "bpcl petrol", "bppump"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "Cleartrip"
+    aliases: ["cleartrip", "clear trip", "cleartrip.com"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "RedBus"
+    aliases: ["redbus", "red bus", "ibibo group"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "EaseMyTrip"
+    aliases: ["easemytrip", "ease my trip", "easy trip planners"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "GoIbibo"
+    aliases: ["goibibo", "go ibibo"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "IndiGo"
+    aliases: ["indigo airlines", "interglobe aviation", "indigo"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "Air India"
+    aliases: ["air india", "airindia"]
+    category: "Transport/Fuel/Travel"
+
+  - name: "SpiceJet"
+    aliases: ["spicejet", "spice jet"]
+    category: "Transport/Fuel/Travel"
+
+  # ── Entertainment / Subscriptions ─────────────────────────────────────────
+  - name: "Netflix"
+    aliases: ["netflix", "netflix.com"]
+    category: "Entertainment/Subscriptions"
+
+  - name: "Disney+ Hotstar"
+    aliases: ["hotstar", "disney hotstar", "disney+ hotstar", "novi digital", "star india"]
+    category: "Entertainment/Subscriptions"
+
+  - name: "Amazon Prime"
+    aliases: ["amazon prime", "prime video", "primevideo"]
+    category: "Entertainment/Subscriptions"
+
+  - name: "Spotify"
+    aliases: ["spotify", "spotify ab"]
+    category: "Entertainment/Subscriptions"
+
+  - name: "Zee5"
+    aliases: ["zee5", "zee entertainment", "z5x"]
+    category: "Entertainment/Subscriptions"
+
+  - name: "SonyLIV"
+    aliases: ["sony liv", "sonyliv", "sony pictures networks"]
+    category: "Entertainment/Subscriptions"
+
+  - name: "JioCinema"
+    aliases: ["jiocinema", "jio cinema", "reliance jio cinema"]
+    category: "Entertainment/Subscriptions"
+
+  - name: "PVR"
+    aliases: ["pvr cinemas", "pvr cinema", "pvr limited", "pvr "]
+    category: "Entertainment/Subscriptions"
+
+  - name: "INOX"
+    aliases: ["inox leisure", "inox movies", "inox "]
+    category: "Entertainment/Subscriptions"
+
+  - name: "BookMyShow"
+    aliases: ["bookmyshow", "book my show", "bigtree entertainment"]
+    category: "Entertainment/Subscriptions"
+
+  # ── Telecom ───────────────────────────────────────────────────────────────
+  - name: "Airtel"
+    aliases: ["airtel", "bharti airtel", "airtel broadband", "airtel dth", "airtel payments"]
+    category: "Mobile/Internet/DTH"
+
+  - name: "Jio"
+    aliases: ["jio", "reliance jio", "jio recharge", "jiomoney"]
+    category: "Mobile/Internet/DTH"
+
+  - name: "BSNL"
+    aliases: ["bsnl", "bharat sanchar nigam"]
+    category: "Mobile/Internet/DTH"
+
+  - name: "Vi (Vodafone Idea)"
+    aliases: ["vodafone", "idea cellular", "vi mobile", "vi recharge", "vodafone idea"]
+    category: "Mobile/Internet/DTH"
+
+  - name: "Tata Play"
+    aliases: ["tata play", "tataplay", "tata sky", "tatasky"]
+    category: "Mobile/Internet/DTH"
+
+  - name: "SunDirect"
+    aliases: ["sun direct", "sundirect"]
+    category: "Mobile/Internet/DTH"
+
+  - name: "ACT Fibernet"
+    aliases: ["act fibernet", "atria convergence", "act broadband"]
+    category: "Mobile/Internet/DTH"
+
+  # ── Electricity Boards ────────────────────────────────────────────────────
+  - name: "BESCOM"
+    aliases: ["bescom", "bangalore electricity supply"]
+    category: "Utilities"
+
+  - name: "MSEDCL"
+    aliases: ["msedcl", "maharashtra state electricity", "mahadiscom"]
+    category: "Utilities"
+
+  - name: "TPDDL"
+    aliases: ["tpddl", "tata power ddl", "tata power delhi"]
+    category: "Utilities"
+
+  - name: "CESC"
+    aliases: ["cesc", "cesc limited", "cesc kolkata"]
+    category: "Utilities"
+
+  - name: "KSEB"
+    aliases: ["kseb", "kerala state electricity"]
+    category: "Utilities"
+
+  - name: "Torrent Power"
+    aliases: ["torrent power", "torrentpower", "torrent", "torre"]
+    category: "Utilities"
+
+  - name: "BSES"
+    aliases: ["bses", "bses rajdhani", "bses yamuna"]
+    category: "Utilities"
+
+  - name: "TNEB"
+    aliases: ["tneb", "tangedco", "tamil nadu electricity"]
+    category: "Utilities"
+
+  # ── LPG ───────────────────────────────────────────────────────────────────
+  - name: "HP Gas"
+    aliases: ["hp gas", "hindustan petroleum", "hpcl gas", "hpgas"]
+    category: "Utilities"
+
+  - name: "Indane Gas"
+    aliases: ["indane", "indian oil gas", "iocl gas", "indane gas"]
+    category: "Utilities"
+
+  - name: "Bharat Gas"
+    aliases: ["bharat gas", "bpcl gas", "bharatgas"]
+    category: "Utilities"
+
+  # ── Healthcare / Pharmacy ─────────────────────────────────────────────────
+  - name: "Apollo Pharmacy"
+    aliases: ["apollo pharmacy", "apollo health", "apollo hospitals pharmacy"]
+    category: "Healthcare/Pharmacy"
+
+  - name: "MedPlus"
+    aliases: ["medplus", "med plus"]
+    category: "Healthcare/Pharmacy"
+
+  - name: "Netmeds"
+    aliases: ["netmeds", "netmeds.com", "dadha pharma"]
+    category: "Healthcare/Pharmacy"
+
+  - name: "1mg"
+    aliases: ["1mg", "tata 1mg", "myra medicines", "img", "tata img"]
+    category: "Healthcare/Pharmacy"
+
+  - name: "PharmEasy"
+    aliases: ["pharmeasy", "pharm easy", "api holdings"]
+    category: "Healthcare/Pharmacy"
+
+  - name: "Practo"
+    aliases: ["practo", "practo technologies"]
+    category: "Healthcare/Pharmacy"
+
+  - name: "Manipal Hospitals"
+    aliases: ["manipal hospital", "manipal health"]
+    category: "Healthcare/Pharmacy"
+
+  # ── Investments / Trading ─────────────────────────────────────────────────
+  - name: "Zerodha"
+    aliases: ["zerodha", "zerodha broking", "rainmatter"]
+    category: "Investments"
+
+  - name: "Groww"
+    aliases: ["groww", "nextbillion technology", "groww mutual"]
+    category: "Investments"
+
+  - name: "Upstox"
+    aliases: ["upstox", "rksv securities"]
+    category: "Investments"
+
+  - name: "Angel One"
+    aliases: ["angel one", "angel broking", "angel securities"]
+    category: "Investments"
+
+  - name: "Paytm Money"
+    aliases: ["paytm money", "paytmmoney"]
+    category: "Investments"
+
+  - name: "HDFC Securities"
+    aliases: ["hdfc securities", "hdfc sec", "hdfcsec"]
+    category: "Investments"
+
+  - name: "ICICI Direct"
+    aliases: ["icici direct", "icicidirect", "icici securities"]
+    category: "Investments"
+
+  - name: "Coin by Zerodha"
+    aliases: ["coin zerodha", "coin by zerodha"]
+    category: "Investments"
+
+  # ── Insurance ─────────────────────────────────────────────────────────────
+  - name: "PolicyBazaar"
+    aliases: ["policybazaar", "policy bazaar", "paisabazaar"]
+    category: "Insurance"
+
+  - name: "LIC"
+    aliases: ["lic", "life insurance corporation", "l i c"]
+    category: "Insurance"
+
+  - name: "HDFC Life"
+    aliases: ["hdfc life", "hdfc standard life", "hdfc life insurance"]
+    category: "Insurance"
+
+  - name: "ICICI Prudential"
+    aliases: ["icici prudential", "icici pru", "icici lombard"]
+    category: "Insurance"
+
+  - name: "SBI Life"
+    aliases: ["sbi life", "sbi life insurance"]
+    category: "Insurance"
+
+  - name: "Bajaj Allianz"
+    aliases: ["bajaj allianz", "bajajallianz", "bajaj insurance"]
+    category: "Insurance"
+
+  - name: "Star Health"
+    aliases: ["star health", "star health insurance"]
+    category: "Insurance"
+
+  - name: "Niva Bupa"
+    aliases: ["niva bupa", "max bupa", "bupa health"]
+    category: "Insurance"
+
+  # ── Education ─────────────────────────────────────────────────────────────
+  - name: "Byju's"
+    aliases: ["byjus", "byju's", "think and learn"]
+    category: "Education"
+
+  - name: "Unacademy"
+    aliases: ["unacademy", "sorting hat technologies"]
+    category: "Education"
+
+  - name: "Vedantu"
+    aliases: ["vedantu", "vedantu innovations"]
+    category: "Education"
+
+  - name: "Coursera"
+    aliases: ["coursera", "coursera inc"]
+    category: "Education"
+
+  - name: "LinkedIn Learning"
+    aliases: ["linkedin learning", "linkedin"]
+    category: "Education"
+
+  - name: "NIIT"
+    aliases: ["niit", "niit technologies"]
+    category: "Education"
+
+  # ── Payment Wallets / UPI ─────────────────────────────────────────────────
+  - name: "Paytm"
+    aliases: ["paytm", "one97 communications", "paytm payments bank"]
+    category: "Transfers"
+
+  - name: "PhonePe"
+    aliases: ["phonepe", "phone pe", "flipkart payments"]
+    category: "Transfers"
+
+  - name: "Google Pay"
+    aliases: ["google pay", "googlepay", "tez by google", "gpay"]
+    category: "Transfers"
+
+  - name: "CRED"
+    aliases: ["cred", "cred club", "dreamplug technologies"]
+    category: "Credit Card Payment"

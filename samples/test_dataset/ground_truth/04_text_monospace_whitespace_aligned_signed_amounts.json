@@ -1,0 +1,18 @@
+{
+  "account": {
+    "bank_name": "Mock Finance Bank Ltd",
+    "holder": "AARAV SHARMA",
+    "acc_no": "949252066621",
+    "ifsc": "MFBL0238679",
+    "micr": "519864433",
+    "branch": "Bengaluru Indiranagar",
+    "cust_id": "455024501",
+    "acc_type": "Savings Account",
+    "address": "1, Sample Residency, Bengaluru - 403391"
+  },
+  "period_from": "2026-07-01",
+  "period_to": "2026-09-30",
+  "opening_balance": "64300.00",
+  "closing_balance": "942.83",
+  "row_count": 96
+}
