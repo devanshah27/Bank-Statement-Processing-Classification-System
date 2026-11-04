@@ -227,17 +227,7 @@ make docker-run    # Run Docker container image
   - **Hybrid Coverage**: Stage A Rules: 82.7%, Stage B ML: 16.1%, Needs Review: 1.1%
   - *Report*: Generated in `reports/model_evaluation_holdout.md`.
 
-### 2. PDF Extraction Dataset Benchmark (All 21 Documents)
 
-The full test dataset was evaluated via `scripts/evaluate_dataset.py --ocr-engine rapid` (`reports/benchmark_rapid_20261104_161405.md`):
-
-| Category | Files | Total GT Rows | Extracted Rows | Exact Matches | Match Rate | Avg Duration |
-|---|---|---|---|---|---|---|
-| **text_based** | 6 | 547 | 563 | 195 | **35.6%** | 1.79s |
-| **scanned_image_based** | 5 | 319 | 352 | 52 | **16.3%** | 142.14s |
-| **mixed_and_multi** | 3 | 7,966 | 7,924 | 7,890 | **99.0%** | 40.56s |
-| **edge_cases** | 5 | 197 | 197 | 196 | **99.5%** | 0.89s |
-| **other_document_types** | 2 | 51 | 0 | 0 | **Rejected** | 0.01s |
 
 #### Key Document Benchmark Highlights:
 - **`01_text_bordered_debit_credit_carry_forward.pdf`**: **103 / 103 (100.0%)** exact match, Grade A, 100% balance reconciliation.
