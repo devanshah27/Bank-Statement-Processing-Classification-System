@@ -6,7 +6,6 @@
 [![Tests](https://img.shields.io/badge/Tests-100%25%20Passing-brightgreen.svg)]()
 [![Non-LLM](https://img.shields.io/badge/AI-100%25%20Non--LLM-success.svg)]()
 [![Vercel Ready](https://img.shields.io/badge/Vercel-Serverless%20Ready-black.svg)]()
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg)]()
 
 A complete, production-ready, self-hosted prototype for **ingesting bank statement PDFs**, extracting account holder details and ledger transactions (native text and scanned OCR), reconciling balances, classifying expenses via a **pure Non-LLM hybrid engine**, and providing an interactive server-rendered web UI for human-in-the-loop review and multi-format export.
 
