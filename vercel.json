@@ -12,7 +12,7 @@
     }
   },
   "rewrites": [
-    { "source": "/static/(.*)", "destination": "/public/$1" },
+    { "source": "/static/(.*)", "destination": "/$1" },
     { "source": "/(.*)", "destination": "/api/index.py" }
   ],
   "env": {
