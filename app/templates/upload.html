@@ -177,6 +177,25 @@ document.addEventListener("htmx:afterRequest", (e) => {
     }, 100);
   }
 });
+
+document.addEventListener("htmx:responseError", (e) => {
+  if (e.detail.elt && e.detail.elt.id === "upload-form") {
+    stopLoadingTimer();
+    const resultsContainer = document.getElementById("upload-results");
+    if (resultsContainer) {
+      resultsContainer.innerHTML = `
+        <div class="fintech-card" style="padding: 1.5rem; border-color: var(--rose); background: var(--rose-bg); color: var(--rose); margin-top: 1rem;">
+          <div style="font-weight: 700; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            <i data-lucide="alert-triangle" style="width: 20px; height: 20px;"></i>
+            Upload Failed (${e.detail.xhr.status} ${e.detail.xhr.statusText || ""})
+          </div>
+          <div style="font-size: 0.875rem;">${e.detail.xhr.responseText || "Server encountered an error processing the statement. Please check the PDF format or try another statement."}</div>
+        </div>
+      `;
+      if (window.lucide) lucide.createIcons();
+    }
+  }
+});
 </script>
 
 <style>

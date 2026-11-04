@@ -65,10 +65,43 @@ def create_app() -> FastAPI:
     # Middleware to normalize Vercel rewritten paths
     @app.middleware("http")
     async def fix_vercel_path(request: Request, call_next):
-        path = request.scope.get("path", "")
-        if path.startswith("/api/index.py"):
-            new_path = path[len("/api/index.py"):] or "/"
-            request.scope["path"] = new_path
+        scope = request.scope
+        raw_query = scope.get("query_string", b"").decode("latin-1")
+        target_path = None
+
+        # 1. Check if rewrite forwarded __vercel_path__ in query params
+        if "__vercel_path__=" in raw_query:
+            import urllib.parse
+            parsed = urllib.parse.parse_qs(raw_query, keep_blank_values=True)
+            if "__vercel_path__" in parsed:
+                val = parsed.pop("__vercel_path__")[0]
+                if val:
+                    target_path = urllib.parse.unquote(val).split("?")[0]
+                scope["query_string"] = urllib.parse.urlencode(parsed, doseq=True).encode("latin-1")
+
+        # 2. Check x-matched-path header from Vercel edge router
+        if not target_path:
+            x_matched = request.headers.get("x-matched-path")
+            if x_matched and not x_matched.startswith("/api/index") and not x_matched.startswith("/static"):
+                target_path = x_matched.split("?")[0]
+
+        if target_path:
+            if not target_path.startswith("/"):
+                target_path = "/" + target_path
+            scope["path"] = target_path
+        else:
+            path = scope.get("path", "")
+            if path.startswith("/api/index.py"):
+                new_path = path[len("/api/index.py"):] or "/"
+                if not new_path.startswith("/"):
+                    new_path = "/" + new_path
+                scope["path"] = new_path
+            elif path.startswith("/api/index"):
+                new_path = path[len("/api/index"):] or "/"
+                if not new_path.startswith("/"):
+                    new_path = "/" + new_path
+                scope["path"] = new_path
+
         return await call_next(request)
 
     # Static assets (gracefully handle read-only filesystems in serverless)

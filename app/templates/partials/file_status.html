@@ -107,4 +107,9 @@
 
 <script>
 if (window.lucide) lucide.createIcons();
+{% if files|length == 1 and files[0].status == 'ready' %}
+setTimeout(() => {
+  window.location.href = "/result/{{ files[0].session_id }}";
+}, 500);
+{% endif %}
 </script>

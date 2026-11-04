@@ -13,6 +13,8 @@ environment variable.
 from __future__ import annotations
 
 import base64
+import datetime
+import decimal
 import hashlib
 import hmac
 import json
@@ -20,9 +22,18 @@ import logging
 import os
 import zlib
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import Optional
 
 logger = logging.getLogger(__name__)
+
+def _json_serial_default(o):
+    """Custom serializer for non-JSON native types."""
+    if isinstance(o, (datetime.date, datetime.datetime)):
+        return o.isoformat()
+    if isinstance(o, decimal.Decimal):
+        return float(o)
+    return str(o)
 
 # ---------------------------------------------------------------------------
 # Constants
@@ -104,30 +115,17 @@ class StorageBackend(ABC):
 
 
 class StatelessBackend(StorageBackend):
-    """Stores data entirely within a signed, compressed token.
+    """Stores data within a signed, compressed token with in-memory and /tmp caching.
 
-    No server-side session storage is required. The token format is::
+    No external database is required. The token format is::
 
         <hmac_hex>.<base64url(zlib(json(data)))>
 
-    Data is verified on load with HMAC-SHA256. Tampered tokens raise
-    :class:`ValueError`.
-
-    Limitations
-    -----------
-    - Tokens grow with data size; keep data small.
-    - Delete is a no-op (no server-side state to remove).
-    - ``key`` is embedded in the token payload for round-trip verification
-      but is not used for routing.
-
-    Parameters
-    ----------
-    signing_key:
-        Raw bytes used for HMAC signing. Defaults to the ``STORAGE_SIGNING_KEY``
-        environment variable (falls back to a development placeholder).
-    max_data_bytes:
-        Maximum uncompressed JSON size in bytes. Defaults to 1 MB.
+    Data is verified on load with HMAC-SHA256. Also caches recently processed
+    statements in memory and /tmp for low-latency retrieval.
     """
+
+    _cache: dict[str, dict] = {}
 
     def __init__(
         self,
@@ -140,36 +138,26 @@ class StatelessBackend(StorageBackend):
     # ------------------------------------------------------------------
 
     def save(self, key: str, data: dict) -> str:
-        """Serialise, compress, sign, and return *data* as a self-contained token.
+        """Serialise, compress, sign, and return *data* as a self-contained token."""
+        # Always populate local in-process cache
+        self._cache[key] = data
 
-        Parameters
-        ----------
-        key:
-            Logical key; embedded in the payload for verification on load.
-        data:
-            JSON-serialisable dict.
+        # Write to /tmp cache (available in Vercel serverless / Linux environments)
+        try:
+            tmp_path = Path("/tmp") / f"session_{key}.json"
+            tmp_path.write_text(json.dumps(data, default=_json_serial_default), encoding="utf-8")
+        except Exception:
+            pass
 
-        Returns
-        -------
-        str
-            Opaque signed token.
-
-        Raises
-        ------
-        ValueError
-            If the serialised data exceeds :attr:`_max_bytes`.
-        TypeError
-            If *data* is not JSON-serialisable.
-        """
         envelope = {"_key": key, "data": data}
-        json_bytes = json.dumps(envelope, separators=(",", ":")).encode("utf-8")
+        json_bytes = json.dumps(envelope, separators=(",", ":"), default=_json_serial_default).encode("utf-8")
 
         if len(json_bytes) > self._max_bytes:
-            raise ValueError(
-                f"StatelessBackend: data for key '{key}' is {len(json_bytes):,} bytes, "
-                f"which exceeds the {self._max_bytes:,}-byte limit. "
-                "Consider using InMemoryBackend or an external store for large datasets."
+            logger.warning(
+                "StatelessBackend: payload exceeds %d bytes; serving from local cache with key '%s'",
+                self._max_bytes, key
             )
+            return key
 
         compressed = zlib.compress(json_bytes, level=6)
         encoded = base64.urlsafe_b64encode(compressed).decode("ascii")
@@ -180,53 +168,57 @@ class StatelessBackend(StorageBackend):
             "StatelessBackend.save: key='%s', raw=%d B, compressed=%d B, token_len=%d",
             key, len(json_bytes), len(compressed), len(token),
         )
-        return token
+
+        # If token fits within safe browser and serverless URL constraints, return token.
+        # Otherwise return key for local /tmp lookup.
+        if len(token) <= 3500:
+            return token
+        return key
 
     def load(self, token: str) -> Optional[dict]:
-        """Verify and deserialise a token returned by :meth:`save`.
-
-        Parameters
-        ----------
-        token:
-            Token string in ``<hmac>.<payload>`` format.
-
-        Returns
-        -------
-        dict or ``None``
-            The original *data* dict, or ``None`` if *token* is empty.
-
-        Raises
-        ------
-        ValueError
-            If the token is malformed, the HMAC is invalid, or JSON parsing fails.
-        """
+        """Verify and deserialise a token, or load from in-memory / /tmp cache."""
         if not token:
             return None
 
-        if _TOKEN_SEP not in token:
-            raise ValueError("StatelessBackend: token is malformed (missing separator)")
+        # 1. Check in-process cache first (fastest)
+        if token in self._cache:
+            return self._cache[token]
 
-        sep_idx = token.index(_TOKEN_SEP)
-        signature = token[:sep_idx]
-        encoded = token[sep_idx + 1:]
-
-        expected = self._sign(encoded)
-        if not hmac.compare_digest(signature, expected):
-            raise ValueError(
-                "StatelessBackend: HMAC verification failed — token may be tampered or corrupted"
-            )
-
+        # 2. Check /tmp filesystem cache
         try:
-            compressed = base64.urlsafe_b64decode(encoded.encode("ascii"))
-            json_bytes = zlib.decompress(compressed)
-            envelope = json.loads(json_bytes.decode("utf-8"))
-        except Exception as exc:
-            raise ValueError(
-                f"StatelessBackend: failed to decompress/parse token: {exc}"
-            ) from exc
+            tmp_path = Path("/tmp") / f"session_{token}.json"
+            if tmp_path.is_file():
+                cached_data = json.loads(tmp_path.read_text(encoding="utf-8"))
+                self._cache[token] = cached_data
+                return cached_data
+        except Exception:
+            pass
 
-        logger.debug("StatelessBackend.load: key='%s'", envelope.get("_key", "<unknown>"))
-        return envelope.get("data")
+        # 3. If signed token format (<signature>.<payload>)
+        if _TOKEN_SEP in token and len(token) > 64:
+            sep_idx = token.index(_TOKEN_SEP)
+            signature = token[:sep_idx]
+            encoded = token[sep_idx + 1:]
+
+            expected = self._sign(encoded)
+            if not hmac.compare_digest(signature, expected):
+                logger.warning("StatelessBackend: HMAC verification failed")
+                return None
+
+            try:
+                compressed = base64.urlsafe_b64decode(encoded.encode("ascii"))
+                json_bytes = zlib.decompress(compressed)
+                envelope = json.loads(json_bytes.decode("utf-8"))
+                payload_data = envelope.get("data")
+                if payload_data:
+                    key = envelope.get("_key", token)
+                    self._cache[key] = payload_data
+                    return payload_data
+            except Exception as exc:
+                logger.warning("StatelessBackend: failed to decompress/parse token: %s", exc)
+                return None
+
+        return None
 
     def delete(self, token: str) -> None:
         """No-op — stateless tokens cannot be invalidated server-side.
